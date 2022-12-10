@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="text/javascript" src="static/assets/scripts/connect4.js"></script>
+    {% include 'includes/head.html' %}
+
+    <title>Connect 4</title>
+</head>
+
+<body>
+    {% include 'includes/navbar.html' %}
+
+    <div id="page-container"> 
+        <div id="page-content">
+            <div class="inputs">
+                <div class="horizontal">
+                    <p>Amount of rows: </p>
+                    <input id="amount_of_rows" type="number" min="4">
+                </div>
+                <div class="horizontal">
+                    <p>Amount of columns: </p>
+                <input id="amount_of_columns" type="number" min="4">
+                </div>
+            </div>
+
+            <div id="game_field">
+                <table id="game_table"></table>
+            </div>
+            <div id="buttons"></div>
+
+            <div id="player">Current player</div>
+            <div id=timer>00:00</div>
+            <button onclick="reset_game()" id="reset">reset game</button>
+            <div id="notifications"></div>
+
+        </div>
+    </div>
+
+    {% include 'includes/footer.html' %}
+</body>
+</html>
