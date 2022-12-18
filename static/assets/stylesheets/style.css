@@ -1,3 +1,8 @@
+/* 
+ *  This CSS is only meant for global things, like fonts and navbar.
+ *  Most specific things should go in separate CSS files.
+ */
+
 /* variables */
 :root {
   --lekkerveld-red: #af261e;
@@ -108,57 +113,4 @@ img{
 @keyframes fade {
     from {opacity: .4}
     to {opacity: 1}
-}
-
-/* Connect 4 */
-#game_table{
-    border: 2px rgb(0, 0, 122) solid;
-}
-
-td{
-    width: 60px;
-    border: 2px solid rgb(0, 0, 122);
-}
-
-button{
-    width: 69px;
-    height: 20px;
-}
-
-.borderless{
-    border: 0px white solid;
-}
-
-.redcell{
-    background-color: red;
-}
-
-.yellowcell{
-    background-color: yellow;
-}
-
-.emptycell{
-    background-color: #a0a0a0;
-}
-
-#player{
-    width: 100px;
-    height: 100px;
-    background-color: yellow;
-}
-
-#reset{
-    width: 100px;
-    height: 40px;
-}
-
-input{
-    width: 5rem;
-    height: 1rem;
-}
-
-.horizontal{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
 }

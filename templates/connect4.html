@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <script type="text/javascript" src="static/assets/scripts/connect4.js"></script>
+
     {% include 'includes/head.html' %}
+
+    <link rel="stylesheet" href="static/assets/stylesheets/connect4.css"/>
 
     <title>Connect 4</title>
 </head>
@@ -12,6 +15,11 @@
 
     <div id="page-container"> 
         <div id="page-content">
+
+            <div id="game_field">
+                <table id="game_table"></table>
+            </div>
+
             <div class="inputs">
                 <div class="horizontal">
                     <p>Amount of rows: </p>
@@ -23,15 +31,11 @@
                 </div>
             </div>
 
-            <div id="game_field">
-                <table id="game_table"></table>
-            </div>
-            <div id="buttons"></div>
-
             <div id="player">Current player</div>
             <div id=timer>00:00</div>
             <button onclick="reset_game()" id="reset">reset game</button>
             <div id="notifications"></div>
+            <button onclick="changeBoardSize()"></button>
 
         </div>
     </div>

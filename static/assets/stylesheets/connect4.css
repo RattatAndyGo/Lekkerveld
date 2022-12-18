@@ -1,0 +1,52 @@
+
+/* variables */
+:root {
+    --lekkerveld-red: #af261e;
+    --bg-blue: #b4d4e7;
+    --background: #f6f6f6;
+    --button-color: #157ea1;
+    --title-blue: #0c62b0;
+}
+
+/* Connect 4 */
+table{
+    border-radius: 2rem;
+    background-color: gray;
+    overflow: scroll;
+}
+
+td{
+    min-width: 10px;
+}
+
+input{
+    width: 5rem;
+    height: 1rem;
+}
+
+.horizontal{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#reset{
+    width: fit-content;
+}
+
+.emptycell{
+    background-color: aqua;
+}
+
+.redcell{
+    background-color: red;
+}
+
+.yellowcell{
+    background-color: yellow;
+}
+
+.highlighted{
+    background-color: aqua;
+    box-sizing: border-box;
+}

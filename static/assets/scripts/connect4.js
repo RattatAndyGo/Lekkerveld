@@ -1,9 +1,10 @@
 let bgColor = "#f6f6f6";
-let notificationDiv = document.getElementById("notifications");
+let pageWidth = 1200;   // Width of page content in pixels
 
 let win_amount = 4;     // How many consecutive coins are needed to win, static constant
 let amount_of_rows = 6;
 let amount_of_columns = 8;
+let boardSize = 2;
 
 let has_finished;
 let current_player;   // Yellow == 0; Red == 1
@@ -12,7 +13,7 @@ let total_seconds;
 let game_state;
 initialize_game_variables();
 
-setInterval(update_timer, 1000);
+// setInterval(update_timer, 1000);
 
 function create_empty_game(){
     let game_state = [];
@@ -23,6 +24,7 @@ function create_empty_game(){
         }
         game_state[i] = row;
     }
+
     return game_state;
 }
 
@@ -41,24 +43,19 @@ window.onload = function(){
 }
 
 function draw(){
-    draw_field();
-    draw_buttons();
-}
-
-function draw_buttons(){
-    let button_html = "";
-    for(let i = 0; i < amount_of_columns; i++){
-        button_html += `<button onclick="add_coin(${i})"></button>`;
-    }
-    document.getElementById("buttons").innerHTML = button_html;
-}
-
-function draw_field(){
     let field_html = '';
     for(let i = 0; i < amount_of_rows; i++){
         field_html += get_row_html(i);
     }
     document.getElementById("game_table").innerHTML = field_html;
+
+    let cellWidth = pageWidth / amount_of_columns;
+    let thickness = Math.min(10, (cellWidth) / 5);
+    Array.prototype.slice.call(document.getElementsByTagName("td")).forEach(element => {
+        let style = `width: ${cellWidth}px; height: ${cellWidth}px; border-radius: ${cellWidth/2}px;`;
+        if(element.classList.contains('highlighted')) style += `border: ${thickness}px solid #008000;`;
+        element.style = style;
+    });
 }
 
 function get_row_html(index){
@@ -71,9 +68,11 @@ function get_row_html(index){
 }
 
 function get_cell_html(row, column){
-    let number = game_state[row][column];
+    let moves = getPossibleMoves();
+    if(moves[column] == row && !has_finished) return `<td class="highlighted" onclick="add_coin(${column})"></td>`;
+
     let type = "";
-    switch(number){
+    switch(game_state[row][column]){
         case -1: type = "emptycell"; break;
         case 0: type = "yellowcell"; break;
         case 1: type = "redcell"; break;
@@ -82,6 +81,27 @@ function get_cell_html(row, column){
 
     let cell_html = `<td class = "${type}"></td>`;
     return cell_html;
+}
+
+function getPossibleMoves(){
+    let r = [];
+    for(i = 0; i < amount_of_columns; i++){
+        r.push(get_first_empty_slot(i));
+    }
+    return r;
+}
+
+// Returns the index of the row where the next coin should go.
+// Returns -1 if the column is full
+function get_first_empty_slot(column){
+    let row = -1;
+    for(let i = amount_of_rows - 1; i >=0 ; i--){
+        if(game_state[i][column] == -1){
+            row = i;
+            break;
+        }
+    }
+    return row;
 }
 
 function add_coin(column){
@@ -109,27 +129,14 @@ function change_active_player(){
     document.getElementById("player").style.backgroundColor = color;
 }
 
-// Returns the index of the row where the next coin should go.
-// Returns -1 if the column is full
-function get_first_empty_slot(column){
-    let row = -1;
-    for(let i = amount_of_rows - 1; i >=0 ; i--){
-        if(game_state[i][column] == -1){
-            row = i;
-            break;
-        }
-    }
-    return row;
-}
-
 function has_won(){
-    switch(current_player){
-        case 1: notificationDiv.innerHTML = "<p>Yellow won!</p>"; break;        // Numbers swapped because game already changed active player
-        case 0: notificationDiv.innerHTML = "<p>Red won!</p>"; break; 
-        default: notificationDiv.innerHTML = "<p>An unknown error occurred (a third player seems to have won.)</p>"; break;
-    }
     has_finished = true;
     document.getElementById("player").style.backgroundColor = bgColor;
+    switch(current_player){
+        case 1: document.getElementById("notifications").innerHTML = "<p>Yellow won!</p>"; break;        // Numbers swapped because game already changed active player
+        case 0: document.getElementById("notifications").innerHTML = "<p>Red won!</p>"; break; 
+        default: document.getElementById("notifications").innerHTML = "<p>An unknown error occurred (a third player seems to have won.)</p>"; break;
+    }
 }
 
 function check_game_state(row, column){
@@ -184,7 +191,7 @@ function check_secondary_diagonal(row, column){
 
 function check_draw(){
     if(current_turn == amount_of_rows*amount_of_columns){
-        notificationDiv.innerHTML = "<p>The game is a draw.</p>";
+        document.getElementById("notifications").innerHTML = "<p>The game is a draw.</p>";
         document.getElementById("player").style.backgroundColor = "#ffffff";
         has_finished = true;
     }
@@ -221,4 +228,17 @@ function add_leading_zero(number){
         res = "0" + res;
     }
     return res;
+}
+
+function changeBoardSize(){
+    boardSize++;
+    if(boardSize > 3) boardSize = 0;
+    document.getElementById("page-content").style = "max-width: 1200px";
+    
+    switch(boardSize){
+        case 1: pageWidth = 800;
+        case 2: pageWidth = document.getElementById("page-content").offsetWidth;
+        case 3: document.getElementById("page-content").style = "max-width: 100vw"; pageWidth = document.getElementById("page-content").offsetWidth;
+    }
+    draw();
 }
