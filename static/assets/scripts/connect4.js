@@ -1,26 +1,27 @@
 let bgColor = "#f6f6f6";
 let pageWidth = 1200;   // Width of page content in pixels
+let colors = ["#00ffff", "#ff0000", "#00ff00", "#0000ff", "#ff00ff", "#ffff00", "#aa00ff", "#ff00aa", "#8f6a23", "#23628f", "#000000", "#ffffff"]
 
 let win_amount = 4;     // How many consecutive coins are needed to win, static constant
 let amount_of_rows = 6;
 let amount_of_columns = 8;
-let boardSize = 2;
+let playerCount = 2;
 
 let has_finished;
-let current_player;   // Yellow == 0; Red == 1
+let current_player;     // Index of colors array
 let current_turn;       // Turn counter
 let total_seconds;
 let game_state;
 initialize_game_variables();
 
-// setInterval(update_timer, 1000);
+setInterval(update_timer, 1000);
 
 function create_empty_game(){
     let game_state = [];
     for(let i = 0; i < amount_of_rows; i++){
         let row = []
         for(let j = 0; j < amount_of_columns; j++){
-            row[j] = -1;
+            row[j] = 0;
         }
         game_state[i] = row;
     }
@@ -40,22 +41,31 @@ window.onload = function(){
         reset_game();
         draw();
     }
+    document.getElementById("playerCount").onchange = function(){
+        playerCount = this.value;
+        reset_game();
+        draw();
+    }
 }
 
 function draw(){
+    // Create HTML
     let field_html = '';
     for(let i = 0; i < amount_of_rows; i++){
         field_html += get_row_html(i);
     }
     document.getElementById("game_table").innerHTML = field_html;
 
-    let cellWidth = pageWidth / amount_of_columns;
+    let cellWidth = Math.max(pageWidth / amount_of_columns, 20);
     let thickness = Math.min(10, (cellWidth) / 5);
-    Array.prototype.slice.call(document.getElementsByTagName("td")).forEach(element => {
-        let style = `width: ${cellWidth}px; height: ${cellWidth}px; border-radius: ${cellWidth/2}px;`;
-        if(element.classList.contains('highlighted')) style += `border: ${thickness}px solid #008000;`;
-        element.style = style;
-    });
+    for(let i = 0; i < amount_of_rows; i++){
+        for(let j = 0; j < amount_of_columns; j++){
+            let cell = document.getElementById('game_table').rows[i].cells[j];
+            let style = `width: ${cellWidth}px; height: ${cellWidth}px; border-radius: ${cellWidth/2}px; background-color: ${colors[game_state[i][j]]};`;
+            if(cell.classList.contains('highlighted')) style += `border: ${thickness}px solid #008000;`;
+            cell.style = style;
+        }
+    }
 }
 
 function get_row_html(index){
@@ -68,27 +78,10 @@ function get_row_html(index){
 }
 
 function get_cell_html(row, column){
-    let moves = getPossibleMoves();
-    if(moves[column] == row && !has_finished) return `<td class="highlighted" onclick="add_coin(${column})"></td>`;
-
-    let type = "";
-    switch(game_state[row][column]){
-        case -1: type = "emptycell"; break;
-        case 0: type = "yellowcell"; break;
-        case 1: type = "redcell"; break;
-        default: type = "emptycell"; break;     // Bug prevention, should never be reached
-    }
-
-    let cell_html = `<td class = "${type}"></td>`;
-    return cell_html;
-}
-
-function getPossibleMoves(){
-    let r = [];
-    for(i = 0; i < amount_of_columns; i++){
-        r.push(get_first_empty_slot(i));
-    }
-    return r;
+    let move = get_first_empty_slot(column);
+    if(move == row && !has_finished){
+        return `<td class="highlighted" onclick="add_coin(${column})"></td>`;}
+    return `<td></td>`;
 }
 
 // Returns the index of the row where the next coin should go.
@@ -96,7 +89,7 @@ function getPossibleMoves(){
 function get_first_empty_slot(column){
     let row = -1;
     for(let i = amount_of_rows - 1; i >=0 ; i--){
-        if(game_state[i][column] == -1){
+        if(game_state[i][column] == 0){
             row = i;
             break;
         }
@@ -111,32 +104,23 @@ function add_coin(column){
             return;
         }
         game_state[row][column] = current_player;
-        change_active_player();
         check_game_state(row, column);
+        change_active_player();
         draw();
     }
 }
 
 function change_active_player(){
+    if(has_finished) return;
     current_turn++;
-    current_player = 1 - current_player;
-    let color = "";
-    switch(current_player){
-        case 0: color = "#ffff00"; break;
-        case 1: color = "#ff0000"; break;
-        default: color = "#000000"; break;      // Bug prevention, should never be reached
-    }
+    current_player = (current_player)%playerCount + 1;
+    let color = colors[current_player];
     document.getElementById("player").style.backgroundColor = color;
 }
 
 function has_won(){
     has_finished = true;
-    document.getElementById("player").style.backgroundColor = bgColor;
-    switch(current_player){
-        case 1: document.getElementById("notifications").innerHTML = "<p>Yellow won!</p>"; break;        // Numbers swapped because game already changed active player
-        case 0: document.getElementById("notifications").innerHTML = "<p>Red won!</p>"; break; 
-        default: document.getElementById("notifications").innerHTML = "<p>An unknown error occurred (a third player seems to have won.)</p>"; break;
-    }
+    document.getElementById("notifications").innerHTML = `<p>Player ${current_player} won!</p>`;
 }
 
 function check_game_state(row, column){
@@ -199,7 +183,7 @@ function check_draw(){
 
 function initialize_game_variables(){
     has_finished = false;
-    current_player = 0;
+    current_player = 1;
     current_turn = 0;
     total_seconds = 0;
     game_state = create_empty_game();
@@ -231,14 +215,7 @@ function add_leading_zero(number){
 }
 
 function changeBoardSize(){
-    boardSize++;
-    if(boardSize > 3) boardSize = 0;
-    document.getElementById("page-content").style = "max-width: 1200px";
-    
-    switch(boardSize){
-        case 1: pageWidth = 800;
-        case 2: pageWidth = document.getElementById("page-content").offsetWidth;
-        case 3: document.getElementById("page-content").style = "max-width: 100vw"; pageWidth = document.getElementById("page-content").offsetWidth;
-    }
+    document.getElementById("page-content").style = "max-width: 100vw; width: 100vw;"
+    pageWidth = document.getElementById("page-content").offsetWidth;
     draw();
 }

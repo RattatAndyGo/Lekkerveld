@@ -9,15 +9,27 @@
 }
 
 /* Connect 4 */
-table{
-    border-radius: 2rem;
-    background-color: gray;
+
+#page-content{
     overflow: scroll;
 }
 
-td{
-    min-width: 10px;
+table{
+    border-radius: 2rem;
+    background-color: gray;
 }
+
+td{
+    min-width: 20px;
+}
+
+table tr td:first-child::after {
+    content: "";
+    display: inline-block;
+    vertical-align: top;
+    min-height: 20px;
+    box-sizing: border-box;
+ }
 
 input{
     width: 5rem;
@@ -25,28 +37,18 @@ input{
 }
 
 .horizontal{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    display: inline-block;
+    padding: 0 0.5rem;
 }
 
 #reset{
     width: fit-content;
 }
 
-.emptycell{
-    background-color: aqua;
-}
-
-.redcell{
-    background-color: red;
-}
-
-.yellowcell{
-    background-color: yellow;
-}
-
 .highlighted{
-    background-color: aqua;
     box-sizing: border-box;
+}
+
+button{
+    width: fit-content;
 }

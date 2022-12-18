@@ -19,8 +19,12 @@
             <div id="game_field">
                 <table id="game_table"></table>
             </div>
+            <hr>
 
-            <div class="inputs">
+            <!-- variables -->
+            <h4>Game options</h4>
+            <p><i>Note: changing any of these will immediately reset the board.</i></p>
+            <div class="horizontal-container">
                 <div class="horizontal">
                     <p>Amount of rows: </p>
                     <input id="amount_of_rows" type="number" min="4">
@@ -29,13 +33,52 @@
                     <p>Amount of columns: </p>
                 <input id="amount_of_columns" type="number" min="4">
                 </div>
+                <div class="horizontal">
+                    <p>Amount of players (max 11): </p>
+                <input id="playerCount" type="number" min="1" max="11">
+                </div>
+                <div class="horizontal">
+                    <input type="checkbox" name="horizontal-check" id="horizontal-check" checked>
+                    <label for="horizontal-check">horizontal</label><br>
+                    <input type="checkbox" name="vertical-check" id="vertical-check" checked>
+                    <label for="vertical-check">vertical</label><br>
+                    <input type="checkbox" name="diagonal/-check" id="diagonal/-check" checked>
+                    <label for="diagonal/-check">diagonal /</label><br>
+                    <input type="checkbox" name="diagonal\-check" id="diagonal\-check" checked>
+                    <label for="diagonal\-check">diagonal\</label><br>
+                </div>
+            </div>
+            <hr>
+
+            <!-- game info -->
+            <h4>Game info</h4>
+            <div class="horizontal-container">
+                <div class="horizontal">
+                    <div id="player">Current player</div>
+                </div>
+                <div class="horizontal">
+                    <div id=timer>00:00</div>
+                </div>
+                <div class="horizontal">
+                    <button onclick="reset_game()" id="reset">reset game</button>
+                </div>
+                <div class="horizontal">
+                    <div id="notifications"></div>
+                </div>
+                <div class="horizontal">
+                    <button onclick="changeBoardSize()">Large board</button>
+                </div>
             </div>
 
-            <div id="player">Current player</div>
-            <div id=timer>00:00</div>
-            <button onclick="reset_game()" id="reset">reset game</button>
-            <div id="notifications"></div>
-            <button onclick="changeBoardSize()"></button>
+            <hr>
+
+            <p>TODO</p>
+            <p>
+                - Make line check toggles functional<br>
+                - Add option for increasing win amount (x in a row instead of 4)<br>
+                - Add option to enable/disable horizontal/vertical/diagonal wins<br>
+                - Add option to enable disjointed rows (highly customizable, keep easy to understand?)
+            </p>
 
         </div>
     </div>
