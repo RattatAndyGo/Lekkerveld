@@ -1,11 +1,16 @@
 let bgColor = "#f6f6f6";
-let pageWidth = 1200;   // Width of page content in pixels
+let pageWidth;   // Width of page content in pixels
 let colors = ["#00ffff", "#ff0000", "#00ff00", "#0000ff", "#ff00ff", "#ffff00", "#aa00ff", "#ff00aa", "#8f6a23", "#23628f", "#000000", "#ffffff"]
 
-let win_amount = 4;     // How many consecutive coins are needed to win, static constant
+let winAmount = 4;     // How many consecutive coins are needed to win, static constant
 let amount_of_rows = 6;
 let amount_of_columns = 8;
 let playerCount = 2;
+let checkHz = true;
+let checkVt = true;
+let checkD1 = true;     // Primary diagonal \
+let checkD2 = true;     // Secondary diagonal /
+let boardSize = 0;      // 0 == normal, 1 == larger
 
 let has_finished;
 let current_player;     // Index of colors array
@@ -29,7 +34,11 @@ function create_empty_game(){
     return game_state;
 }
 
+// This function sets up all listeners for game option changes.
+// It also initially draws the game board when loading the page,
+// And calculates how wide page-content is.
 window.onload = function(){
+    pageWidth = document.getElementById("page-content").offsetWidth;
     draw();
     document.getElementById("amount_of_rows").onchange = function(){
         amount_of_rows = this.value;
@@ -43,6 +52,32 @@ window.onload = function(){
     }
     document.getElementById("playerCount").onchange = function(){
         playerCount = this.value;
+        reset_game();
+        draw();
+    }
+    document.getElementById("winAmount").onchange = function(){
+        winAmount = this.value;
+        reset_game();
+        draw();
+    }
+    document.getElementById("horizontal-check").onchange = function(){
+        checkHz = this.checked;
+        console.log(checkHz);
+        reset_game();
+        draw();
+    }
+    document.getElementById("vertical-check").onchange = function(){
+        checkVt = this.checked;
+        reset_game();
+        draw();
+    }
+    document.getElementById("diagonal1-check").onchange = function(){
+        checkD1 = this.checked;
+        reset_game();
+        draw();
+    }
+    document.getElementById("diagonal2-check").onchange = function(){
+        checkD2 = this.checked;
         reset_game();
         draw();
     }
@@ -148,7 +183,7 @@ function check_generalized(row, column, row_increment, column_increment){
         consecutive_coins++;
     }
 
-    if(consecutive_coins >= win_amount){
+    if(consecutive_coins >= winAmount){
         has_won();
     }
 }
@@ -158,19 +193,19 @@ function in_board(row, column){
 }
 
 function check_horizontal(row, column){
-    check_generalized(row, column, 0, 1);
+    if(checkHz) check_generalized(row, column, 0, 1);
 }
 
 function check_vertical(row, column){
-    check_generalized(row, column, 1, 0);
+    if(checkVt) check_generalized(row, column, 1, 0);
 }
 
 function check_main_diagonal(row, column){
-    check_generalized(row, column, 1,1);
+    if(checkD1) check_generalized(row, column, 1,1);
 }
 
 function check_secondary_diagonal(row, column){
-    check_generalized(row, column, 1, -1);
+    if(checkD2) check_generalized(row, column, 1, -1);
 }
 
 function check_draw(){
@@ -215,7 +250,16 @@ function add_leading_zero(number){
 }
 
 function changeBoardSize(){
-    document.getElementById("page-content").style = "max-width: 100vw; width: 100vw;"
+    // Change dependant code
+    if(boardSize == 0){     // small --> large
+        document.getElementById("page-content").style = "max-width: 100vw; width: 100vw;";
+        boardSize = 1;
+    }else{                  // large --> small
+        document.getElementById("page-content").style = "";
+        boardSize = 0;
+    }
+    
+    // Finalize new changes
     pageWidth = document.getElementById("page-content").offsetWidth;
     draw();
 }
