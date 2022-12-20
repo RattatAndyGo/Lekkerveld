@@ -1,16 +1,18 @@
 let bgColor = "#f6f6f6";
 let pageWidth;   // Width of page content in pixels
-let colors = ["#00ffff", "#ff0000", "#00ff00", "#0000ff", "#ff00ff", "#ffff00", "#aa00ff", "#ff00aa", "#8f6a23", "#23628f", "#000000", "#ffffff"]
+let colors = ["#00ffff", "#ff0000", "#00ff00", "#0000ff", "#ff00aa", "#ffff00", "#aa00ff", "#ff00ff", "#8f6a23", "#23628f", "#000000", "#ffffff"]
+let colorStrings = ["Empty", "Red", "Green", "Blue", "Pink", "Yellow", "Purple", "Magenta", "Brown", "Cyan", "Black", "White"];
 
 let winAmount = 4;     // How many consecutive coins are needed to win, static constant
 let amount_of_rows = 6;
-let amount_of_columns = 8;
+let amount_of_columns = 7;
 let playerCount = 2;
 let checkHz = true;
 let checkVt = true;
 let checkD1 = true;     // Primary diagonal \
 let checkD2 = true;     // Secondary diagonal /
 let torus = false;
+let gravity = true;
 let boardSize = 0;      // 0 == normal, 1 == larger
 
 let has_finished;
@@ -86,6 +88,11 @@ window.onload = function(){
         reset_game();
         draw();
     }
+    document.getElementById("gravity-check").onchange = function(){
+        gravity = this.checked;
+        reset_game();
+        draw();
+    }
 }
 
 function draw(){
@@ -119,8 +126,8 @@ function get_row_html(index){
 
 function get_cell_html(row, column){
     let move = get_first_empty_slot(column);
-    if(move == row && !has_finished){
-        return `<td class="highlighted" onclick="add_coin(${column})"></td>`;}
+    if((move == row || !gravity && game_state[row][column] == 0) && !has_finished){
+        return `<td class="highlighted" onclick="add_coin(${column}, ${row})"></td>`;}
     return `<td></td>`;
 }
 
@@ -137,9 +144,8 @@ function get_first_empty_slot(column){
     return row;
 }
 
-function add_coin(column){
+function add_coin(column, row){
     if(!has_finished){
-        let row = get_first_empty_slot(column);
         if(row == -1){
             return;
         }
@@ -160,7 +166,7 @@ function change_active_player(){
 
 function has_won(){
     has_finished = true;
-    document.getElementById("notifications").innerHTML = `<p>Player ${current_player} won!</p>`;
+    document.getElementById("notifications").innerHTML = `<p>${colorStrings[current_player]} won!</p>`;
 }
 
 function check_game_state(row, column){
