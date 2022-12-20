@@ -63,7 +63,6 @@ window.onload = function(){
     }
     document.getElementById("horizontal-check").onchange = function(){
         checkHz = this.checked;
-        console.log(checkHz);
         reset_game();
         draw();
     }
@@ -170,7 +169,6 @@ function check_game_state(row, column){
     check_main_diagonal(row, column);
     check_secondary_diagonal(row, column);
     check_draw(row, column);
-    console.log("no win");
 }
 
 function check_generalized(row, column, row_increment, column_increment){
@@ -182,13 +180,10 @@ function check_generalized(row, column, row_increment, column_increment){
         column -= column_increment;
 
         if(!in_board(row, column)){ // Fallen out of board
-            console.log("beep?");
             if(!torus) break;       // no wrap around, so end of line
-            console.log("boop.");
             row = mod(row, amount_of_rows);
             column = mod(column, amount_of_columns);
         }
-        console.log("row: ", row, " column: ", column);
     }
     row += row_increment;
     column += column_increment;    // Now row/column is index of start of line
