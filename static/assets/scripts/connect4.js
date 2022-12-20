@@ -10,6 +10,7 @@ let checkHz = true;
 let checkVt = true;
 let checkD1 = true;     // Primary diagonal \
 let checkD2 = true;     // Secondary diagonal /
+let torus = false;
 let boardSize = 0;      // 0 == normal, 1 == larger
 
 let has_finished;
@@ -78,6 +79,11 @@ window.onload = function(){
     }
     document.getElementById("diagonal2-check").onchange = function(){
         checkD2 = this.checked;
+        reset_game();
+        draw();
+    }
+    document.getElementById("torus-check").onchange = function(){
+        torus = this.checked;
         reset_game();
         draw();
     }
@@ -164,23 +170,41 @@ function check_game_state(row, column){
     check_main_diagonal(row, column);
     check_secondary_diagonal(row, column);
     check_draw(row, column);
+    console.log("no win");
 }
 
 function check_generalized(row, column, row_increment, column_increment){
     let consecutive_coins = 0;
     let player = game_state[row][column];
 
-    while(in_board(row, column) && game_state[row][column] == player){
+    while(game_state[row][column] == player){
         row -= row_increment;
         column -= column_increment;
+
+        if(!in_board(row, column)){ // Fallen out of board
+            console.log("beep?");
+            if(!torus) break;       // no wrap around, so end of line
+            console.log("boop.");
+            row = mod(row, amount_of_rows);
+            column = mod(column, amount_of_columns);
+        }
+        console.log("row: ", row, " column: ", column);
     }
     row += row_increment;
     column += column_increment;    // Now row/column is index of start of line
+    row = mod(row, amount_of_rows);
+    column = mod(column, amount_of_columns);        // Modulo to prevent OoB
 
-    while(in_board(row, column) && game_state[row][column] == player){
+    while(game_state[row][column] == player){
         row += row_increment;
         column += column_increment;
         consecutive_coins++;
+
+        if(!in_board(row, column)){ // Fallen out of board
+            if(!torus) break;       // no wrap around, so end of line
+            row = mod(row, amount_of_rows);
+            column = mod(column, amount_of_columns);
+        }
     }
 
     if(consecutive_coins >= winAmount){
@@ -190,6 +214,11 @@ function check_generalized(row, column, row_increment, column_increment){
 
 function in_board(row, column){
     return(row >= 0 && column >= 0 && row < amount_of_rows && column < amount_of_columns);
+}
+
+// https://web.archive.org/web/20090717035140if_/javascript.about.com/od/problemsolving/a/modulobug.htm
+function mod(a, b){
+    return ((a%b)+b)%b;
 }
 
 function check_horizontal(row, column){
@@ -227,6 +256,7 @@ function initialize_game_variables(){
 function reset_game(){
     initialize_game_variables();
     draw();
+    document.getElementById("notifications").innerHTML = "";
 }
 
 // Source: based on https://stackoverflow.com/questions/5517597/plain-count-up-timer-in-javascript

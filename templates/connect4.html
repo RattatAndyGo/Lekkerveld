@@ -26,15 +26,15 @@
             <p><i>Note: changing any of these will immediately reset the board.</i></p>
             <div class="horizontal-container">
                 <div class="horizontal">
-                    <p>Amount of rows: </p>
+                    <p>No. rows: </p>
                     <input id="amount_of_rows" type="number" min="1">
                 </div>
                 <div class="horizontal">
-                    <p>Amount of columns: </p>
+                    <p>No. columns: </p>
                 <input id="amount_of_columns" type="number" min="1">
                 </div>
                 <div class="horizontal">
-                    <p>Amount of players (max 11): </p>
+                    <p>No. players (max 11): </p>
                 <input id="playerCount" type="number" min="1" max="11">
                 </div>
                 <div class="horizontal">
@@ -50,6 +50,10 @@
                     <label for="diagonal1-check">primary diagonal \</label><br>
                     <input type="checkbox" name="diagonal2-check" id="diagonal2-check" checked>
                     <label for="diagonal2-check">secondary diagonal /</label><br>
+                </div>
+                <div class="horizontal">
+                    <input type="checkbox" name="torus-check" id="torus-check">
+                    <label for="torus-check">Allow wrap around: </label><br>
                 </div>
             </div>
             <hr>
