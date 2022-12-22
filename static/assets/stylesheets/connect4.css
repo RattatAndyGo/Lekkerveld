@@ -31,14 +31,9 @@ table tr td:first-child::after {
     box-sizing: border-box;
  }
 
-input{
+input[type=number]{
     width: 5rem;
     height: 1rem;
-}
-
-.horizontal{
-    display: inline-block;
-    padding: 0 0.5rem;
 }
 
 #reset{
@@ -52,3 +47,4 @@ input{
 button{
     width: fit-content;
 }
+

@@ -126,3 +126,12 @@ p{
 hr{
     margin: 0.5rem 0;
 }
+
+.horizontal{
+    display: inline-block;
+    padding: 0 0.5rem;
+}
+
+.break{
+    height: 0.5rem;
+}

@@ -27,19 +27,19 @@
             <div class="horizontal-container">
                 <div class="horizontal">
                     <p>No. rows: </p>
-                    <input id="amount_of_rows" type="number" min="1">
+                    <input id="amount_of_rows" type="number" min="1" value="6">
                 </div>
                 <div class="horizontal">
                     <p>No. columns: </p>
-                <input id="amount_of_columns" type="number" min="1">
+                <input id="amount_of_columns" type="number" min="1" value="7">
                 </div>
                 <div class="horizontal">
                     <p>No. players (max 11): </p>
-                <input id="playerCount" type="number" min="1" max="11">
+                <input id="playerCount" type="number" min="1" max="11" value="2">
                 </div>
                 <div class="horizontal">
                     <p>Win amount: </p>
-                    <input id="winAmount" type="number" min="1">
+                    <input id="winAmount" type="number" min="1" value="4">
                 </div>
                 <div class="horizontal">
                     <input type="checkbox" name="horizontal-check" id="horizontal-check" checked>
@@ -56,6 +56,31 @@
                     <label for="torus-check">Allow wrap around</label><br>
                     <input type="checkbox" name="gravity-check" id="gravity-check" checked>
                     <label for="gravity-check">Enable gravity</label><br>
+                </div>
+            </div>
+            <div class="break"></div>
+            <div class="horizontal-container">
+                <div class="horizontal">
+                    <input type="checkbox" name="portal-check" id="portal-check">
+                    <label for="portal-check">Portal mode</label><br>
+                </div>
+            </div>
+            <div class="horizontal-container" id="portal-div" style="display: none">
+                <div class="horizontal">
+                    <input type="checkbox" name="set-check" id="set-check">
+                    <label for="both-check">Require all portals</label><br>
+                </div>
+                <div class="horizontal">
+                    <p>Set size: </p>
+                    <input id="setSize" type="number" min="1" value="2">
+                </div>
+                <div class="horizontal">
+                    <p>No. sets: </p>
+                    <input id="setAmount" type="number" min="0" value="2">
+                </div>
+                <div class="horizontal">
+                    <p>Instability factor: </p>
+                    <input id="instability" type="number" value="3">
                 </div>
             </div>
             <hr>
