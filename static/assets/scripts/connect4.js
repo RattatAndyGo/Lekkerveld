@@ -175,72 +175,50 @@ function has_won(){
 }
 
 function check_game_state(row, column){
-    check_horizontal(row, column);
-    check_vertical(row, column);
-    check_main_diagonal(row, column);
-    check_secondary_diagonal(row, column);
-    check_draw(row, column);
+    if(checkHz) check_generalized(row, column, 0, 1);       // Horizontal
+    if(checkVt) check_generalized(row, column, 1, 0);       // Vertical
+    if(checkD1) check_generalized(row, column, 1, 1);       // Main diagonal
+    if(checkD2) check_generalized(row, column, 1, -1);      // Secondary diagonal
 }
 
 function check_generalized(row, column, row_increment, column_increment){
-    let consecutive_coins = 0;
-    let player = game_state[row][column];
-
-    while(game_state[row][column] == player){
-        row -= row_increment;
-        column -= column_increment;
-
-        if(!in_board(row, column)){ // Fallen out of board
-            if(!torus) break;       // no wrap around, so end of line
-            row = mod(row, amount_of_rows);
-            column = mod(column, amount_of_columns);
-        }
-    }
-    row += row_increment;
-    column += column_increment;    // Now row/column is index of start of line
-    row = mod(row, amount_of_rows);
-    column = mod(column, amount_of_columns);        // Modulo to prevent OoB
-
-    while(game_state[row][column] == player){
-        row += row_increment;
-        column += column_increment;
-        consecutive_coins++;
-
-        if(!in_board(row, column)){ // Fallen out of board
-            if(!torus) break;       // no wrap around, so end of line
-            row = mod(row, amount_of_rows);
-            column = mod(column, amount_of_columns);
-        }
-    }
-
-    if(consecutive_coins >= winAmount){
+    let count = countOneWay(row, column, row_increment, column_increment) + countOneWay(row, column, -row_increment, -column_increment) - 1;
+    if(count >= winAmount){
         has_won();
     }
 }
 
+// Counts the amount of consecutive coins starting from [row][column] and incrementing with the given increments.
+// Making the increments negative counts in the opposite direction, so total is sum of those +1 (start is counted twice)
+function countOneWay(row, column, row_increment, column_increment){
+    let count = 0;
+    let player = game_state[row][column];
+
+    while(in_board(row, column) && game_state[row][column] == player){
+
+        // if(cell is portal){
+        //      let max = 0;
+        //      for all portals p in the same set{
+        //          let count = countOneWay(params); prevent immediately looping, if count finds portal of set already found, a loop is made and the player wins instantly (infinity in a row)
+        //          if(count > max) max = count;
+        //      }
+        //      return max
+        // }
+
+        count++;
+        row += row_increment;
+        column += column_increment;
+
+        if(torus){
+            row = mod(row, amount_of_rows);
+            column = mod(column, amount_of_columns);
+        }
+    }
+    return count;
+}
+
 function in_board(row, column){
     return(row >= 0 && column >= 0 && row < amount_of_rows && column < amount_of_columns);
-}
-
-// https://web.archive.org/web/20090717035140if_/javascript.about.com/od/problemsolving/a/modulobug.htm
-function mod(a, b){
-    return ((a%b)+b)%b;
-}
-
-function check_horizontal(row, column){
-    if(checkHz) check_generalized(row, column, 0, 1);
-}
-
-function check_vertical(row, column){
-    if(checkVt) check_generalized(row, column, 1, 0);
-}
-
-function check_main_diagonal(row, column){
-    if(checkD1) check_generalized(row, column, 1,1);
-}
-
-function check_secondary_diagonal(row, column){
-    if(checkD2) check_generalized(row, column, 1, -1);
 }
 
 function check_draw(){
