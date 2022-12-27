@@ -15,6 +15,10 @@ let checkD1 = true;     // Primary diagonal \
 let checkD2 = true;     // Secondary diagonal /
 let torus = false;
 let gravity = true;
+let setSize = 2;
+let setAmount = 2;
+let instability = 3;
+let turnsUntilPortalShift;
 let boardSize = 0;      // 0 == normal, 1 == larger
 
 // Game variables
@@ -25,79 +29,84 @@ let total_seconds;
 let game_state;
 let portals;
 
-// Setup
-initialize_game_variables();
-setInterval(update_timer, 1000);
-
-function create_empty_game(){
-    let game_state = [];
+function create_empty_board(){
+    board = [];
     for(let i = 0; i < amount_of_rows; i++){
         let row = []
         for(let j = 0; j < amount_of_columns; j++){
             row[j] = 0;
         }
-        game_state[i] = row;
+        board[i] = row;
     }
-
-    return game_state;
+    return board;
 }
 
 // This function sets up all listeners for game option changes.
-// It also initially draws the game board when loading the page,
-// And calculates how wide page-content is.
+// It also sets up initial conditions.
 window.onload = function(){
     pageWidth = document.getElementById("page-content").offsetWidth;
+    initialize_game_variables();
+    setInterval(update_timer, 1000);
     draw();
+
     document.getElementById("amount_of_rows").onchange = function(){
         amount_of_rows = this.value;
         reset_game();
-        draw();
     }
     document.getElementById("amount_of_columns").onchange = function(){
         amount_of_columns = this.value;
         reset_game();
-        draw();
     }
     document.getElementById("playerCount").onchange = function(){
         playerCount = this.value;
         reset_game();
-        draw();
     }
     document.getElementById("winAmount").onchange = function(){
         winAmount = this.value;
         reset_game();
-        draw();
     }
     document.getElementById("horizontal-check").onchange = function(){
         checkHz = this.checked;
         reset_game();
-        draw();
     }
     document.getElementById("vertical-check").onchange = function(){
         checkVt = this.checked;
         reset_game();
-        draw();
     }
     document.getElementById("diagonal1-check").onchange = function(){
         checkD1 = this.checked;
         reset_game();
-        draw();
     }
     document.getElementById("diagonal2-check").onchange = function(){
         checkD2 = this.checked;
         reset_game();
-        draw();
     }
     document.getElementById("torus-check").onchange = function(){
         torus = this.checked;
         reset_game();
-        draw();
     }
     document.getElementById("gravity-check").onchange = function(){
         gravity = this.checked;
         reset_game();
-        draw();
     }
+    document.getElementById("portal-check").onchange = function(){
+        if(this.checked) document.getElementById("portal-div").style = "display: inline-block";
+        else document.getElementById("portal-div").style = "display: none";
+        reset_game();
+    }
+    document.getElementById("setSize").onchange = function(){
+        setSize = this.value;
+        reset_game();
+    }
+    document.getElementById("setAmount").onchange = function(){
+        setAmount = this.value;
+        reset_game();
+    }
+    document.getElementById("instability").onchange = function(){
+        instability = this.value;
+        reset_game();
+    }
+
 }
 
 function draw(){
@@ -130,10 +139,21 @@ function get_row_html(index){
 }
 
 function get_cell_html(row, column){
+    let cell_html = "<td";
+
     let move = get_first_empty_slot(column);
     if((move == row || !gravity && game_state[row][column] == 0) && !has_finished){
-        return `<td class="highlighted" onclick="add_coin(${column}, ${row})"></td>`;}
-    return `<td></td>`;
+        cell_html += ` class="highlighted" onclick="add_coin(${column}, ${row})"`;
+    }
+    cell_html += ">";
+
+    let index = portals[row][column];
+    if(index != 0){
+        cell_html += `<p>${index}</p>`;
+    }
+
+    cell_html += "</td>";
+    return cell_html;
 }
 
 // Returns the index of the row where the next coin should go.
@@ -150,28 +170,41 @@ function get_first_empty_slot(column){
 }
 
 function add_coin(column, row){
-    if(!has_finished){
-        if(row == -1){
-            return;
-        }
-        game_state[row][column] = current_player;
-        check_game_state(row, column);
-        change_active_player();
-        draw();
-    }
+    game_state[row][column] = current_player;
+    check_game_state(row, column);
+    change_active_player();
+    draw();
 }
 
 function change_active_player(){
     if(has_finished) return;
     current_turn++;
     current_player = (current_player)%playerCount + 1;
+    if(current_player == 1){
+        if(--turnsUntilPortalShift == 0){
+            turnsUntilPortalShift = instability;
+            notify("The portals are shifting...");
+            updatePortals();
+            checkAllCells();
+        }
+    }
     let color = colors[current_player];
     document.getElementById("player").style.backgroundColor = color;
 }
 
 function has_won(){
     has_finished = true;
-    document.getElementById("notifications").innerHTML = `<p>${colorStrings[current_player]} won!</p>`;
+    notify(colorStrings[current_player] + " won!");
+}
+
+// Iterates around the board and checks each cell for a win as if it had just been placed.
+// Very inefficient, so only call when really needed
+function checkAllCells(){
+    for(let i = 0; i < amount_of_rows; i++){
+        for(let j = 0; j < amount_of_columns; j++){
+            check_game_state(i, j);
+        }
+    }
 }
 
 function check_game_state(row, column){
@@ -182,7 +215,7 @@ function check_game_state(row, column){
 }
 
 function check_generalized(row, column, row_increment, column_increment){
-    let count = countOneWay(row, column, row_increment, column_increment) + countOneWay(row, column, -row_increment, -column_increment) - 1;
+    let count = countOneWay(row, column, row_increment, column_increment, game_state[row][column], []) + countOneWay(row, column, -row_increment, -column_increment, game_state[row][column], []) - 1;
     if(count >= winAmount){
         has_won();
     }
@@ -190,29 +223,41 @@ function check_generalized(row, column, row_increment, column_increment){
 
 // Counts the amount of consecutive coins starting from [row][column] and incrementing with the given increments.
 // Making the increments negative counts in the opposite direction, so total is sum of those +1 (start is counted twice)
-function countOneWay(row, column, row_increment, column_increment){
+function countOneWay(row, column, row_increment, column_increment, player, visitedSets){
+    if(!in_board(row, column)){
+        if(!torus) return 0;
+        row = mod(row, amount_of_rows);
+        column = mod(column, amount_of_columns);
+    }
+
     let count = 0;
-    let player = game_state[row][column];
 
     while(in_board(row, column) && game_state[row][column] == player){
-
-        // if(cell is portal){
-        //      let max = 0;
-        //      for all portals p in the same set{
-        //          let count = countOneWay(params); prevent immediately looping, if count finds portal of set already found, a loop is made and the player wins instantly (infinity in a row)
-        //          if(count > max) max = count;
-        //      }
-        //      return max
-        // }
-
         count++;
+
+        let set = portals[row][column];
+        if(visitedSets.includes(set)) return winAmount;     // Looping, so infinity in a row
+
+        if(set != 0){
+            let max = 0;
+            for(let i = 0; i < amount_of_rows; i++){
+                for(let j = 0; j < amount_of_columns; j++){
+                    if(portals[i][j] != set || game_state[i][j] != player) continue;
+
+                    // Count from the cell next to the portal, to prevent looping. Two portals count as one cell, so no cell is uncounted.
+                    let c = countOneWay(i+row_increment, j+column_increment, row_increment, column_increment, player, visitedSets + set);
+                    if(c > max) max = c;
+                }
+            }
+            return max+count;     // Best result from portal hopping + previously counted coins 
+        }
+
         row += row_increment;
         column += column_increment;
 
-        if(torus){
-            row = mod(row, amount_of_rows);
-            column = mod(column, amount_of_columns);
-        }
+        if(!torus) continue;
+        row = mod(row, amount_of_rows);
+        column = mod(column, amount_of_columns);
     }
     return count;
 }
@@ -223,10 +268,33 @@ function in_board(row, column){
 
 function check_draw(){
     if(current_turn == amount_of_rows*amount_of_columns){
-        document.getElementById("notifications").innerHTML = "<p>The game is a draw.</p>";
+        notify("The game is a draw.");
         document.getElementById("player").style.backgroundColor = "#ffffff";
         has_finished = true;
     }
+}
+
+// This generates random sets of portals depending on the current game variables,
+// And stores it in the variable portals as an array of arrays, where each cell is represented by its linearized index
+function updatePortals(){
+    portals = create_empty_board();
+    if(!document.getElementById("portal-check").checked) return;        // Portals are disabled, so need empty set
+
+    for(let i = 0; i < setAmount; i++){
+        for(let j = 0; j < setSize; j++){
+            cell = getPortallessCell();
+            portals[cell[0]][cell[1]] = i+1;
+        }
+    }
+}
+
+// Returns a random cell that isn't a portal
+function getPortallessCell(){
+    let cell = getRandomCell();
+    while(portals[cell[0]][cell[1]] != 0){
+        cell = getRandomCell();
+    }
+    return cell;
 }
 
 function initialize_game_variables(){
@@ -234,13 +302,25 @@ function initialize_game_variables(){
     current_player = 1;
     current_turn = 0;
     total_seconds = 0;
-    game_state = create_empty_game();
+    turnsUntilPortalShift = instability;
+    game_state = create_empty_board();
+    updatePortals();
 }
 
 function reset_game(){
+    if(!checkViability()) return;
     initialize_game_variables();
     draw();
-    document.getElementById("notifications").innerHTML = "";
+    notify("");
+}
+
+function checkViability(){
+    let portal = (setAmount*setSize) <= (amount_of_columns*amount_of_rows);     // Are there more portals than cells?
+    let size = amount_of_columns >= winAmount || amount_of_rows >= winAmount || torus || document.getElementById("portal-check").checked;       // Is it possible to get a long enough chain?
+    let winDirection = checkHz || checkVt || checkD1 || checkD2;        // Is there a direction in which you can win?
+    let viable = portal && size && winDirection;        // combine booleans
+    if(!viable) notify("Your current settings create an impossible board (e.g. you have more portals than available cells). Please change them.");
+    return viable;
 }
 
 // Source: based on https://stackoverflow.com/questions/5517597/plain-count-up-timer-in-javascript
@@ -278,6 +358,10 @@ function changeBoardSize(){
     draw();
 }
 
+function notify(string){
+    document.getElementById("notifications").innerHTML = `<p>${string}<p>`;
+}
+
 // Returns a random int between 0 and max (excluded)
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
@@ -287,12 +371,31 @@ function getRandomInt(max) {
 // Rerolls result if it is present in exclusions
 // Returns -1 if all possible values are present in exclusions
 function getRandomIntExcluded(max, exclusions){
-    if(exclusions.size >= max) return -1;
+    if(exclusions.length >= max) return -1;
     let r = getRandomInt(max);
-    while(exclusions.contains(r)){
+    while(exclusions.includes(r)){
         r = getRandomInt(max)
     }
     return r;
+}
+
+// Returns a random cell from the board
+function getRandomCell(){
+    let row = getRandomInt(amount_of_rows);
+    let column = getRandomInt(amount_of_columns);
+    return [row, column];
+}
+
+// Returns a random cell from the board
+// Rerolls result if the cell is in exclusions
+// Returns an empty array if all cells are excluded
+function getRandomCellExcluded(exclusions){
+    if(exclusions.length >= amount_of_columns*amount_of_rows) return [];
+    let cell = getRandomCell();
+    while(exclusions.includes(cell)){
+        cell = getRandomCell();
+    }
+    return cell;
 }
 
 // Takes the modulo of two numbers a and b.

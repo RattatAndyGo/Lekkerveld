@@ -67,20 +67,16 @@
             </div>
             <div class="horizontal-container" id="portal-div" style="display: none">
                 <div class="horizontal">
-                    <input type="checkbox" name="set-check" id="set-check">
-                    <label for="both-check">Require all portals</label><br>
-                </div>
-                <div class="horizontal">
                     <p>Set size: </p>
                     <input id="setSize" type="number" min="1" value="2">
                 </div>
                 <div class="horizontal">
                     <p>No. sets: </p>
-                    <input id="setAmount" type="number" min="0" value="2">
+                    <input id="setAmount" type="number" min="1" value="2">
                 </div>
                 <div class="horizontal">
                     <p>Instability factor: </p>
-                    <input id="instability" type="number" value="3">
+                    <input id="instability" type="number" min="1" value="3">
                 </div>
             </div>
             <hr>
@@ -138,6 +134,12 @@
                     <li><p>
                         <b>Enable gravity</b><br>
                         Normally, a coin can only be placed in the bottommost empty slot of each column. Disabling gravity is like placing the board flat on the ground, you can now put coins in every empty slot. Combining this with allowing wrap around wins and multiple players makes for some interesting games!
+                    </p></li>
+                    <li><p>
+                        <b>Portals</b><br>
+                        This whack gamemode creates a bunch of portals, which connect various cells that are far away from each other. Each portal belongs to a set, and every portal in a set is connected to every other portal in that set. This is denoted by a number in the cell. How many sets there are and how big a set is, is up to you.<br>
+                        In order to use a portal, you need to control both portals you are trying to use (the rest of the set doesn't matter). A line of coins can go in one portal, and come out the other, continuing in the same direction. That is, if you go in horizontally from the left in one portal, you continue horizontally on the right side. Both portals count as one coin, combined. If you loop around and enter a portal from the same set again, you create an infinite loop and win automatically.<br>
+                        Finally, the instability factor indicates how often the portals shift around. Once a certain amount of rounds have passed (one round being everyone playing one coin), all portals randomly change. If this now causes a win, that player wins immediately (if multiple players now win, the game chooses whatever winner it finds first). Setting the instability factor to a negative number prevents it from changing.
                     </p></li>
                 </ul>
                 <p>

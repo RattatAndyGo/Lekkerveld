@@ -21,15 +21,14 @@ table{
 
 td{
     min-width: 20px;
+    text-align: center;
 }
 
-table tr td:first-child::after {
-    content: "";
-    display: inline-block;
-    vertical-align: top;
-    min-height: 20px;
-    box-sizing: border-box;
- }
+td p{
+    font-size: calc();
+    height: fit-content;
+    margin: 0;
+}
 
 input[type=number]{
     width: 5rem;
