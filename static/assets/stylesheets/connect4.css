@@ -39,7 +39,7 @@ input[type=number]{
     width: fit-content;
 }
 
-.highlighted{
+.inputable, .popoutable{
     box-sizing: border-box;
 }
 

@@ -21,6 +21,27 @@
             </div>
             <hr>
 
+            <!-- game info -->
+            <h4>Game info</h4>
+            <div class="horizontal-container">
+                <div class="horizontal">
+                    <div id="player">Current player</div>
+                </div>
+                <div class="horizontal">
+                    <div id=timer>00:00</div>
+                </div>
+                <div class="horizontal">
+                    <button onclick="reset_game()" id="reset">reset game</button>
+                </div>
+                <div class="horizontal">
+                    <div id="notifications"></div>
+                </div>
+                <div class="horizontal">
+                    <button onclick="changeBoardSize()">Toggle board size</button>
+                </div>
+            </div>
+            <hr>
+
             <!-- variables -->
             <h4>Game options</h4>
             <p><i>Note: changing any of these will immediately reset the board.</i></p>
@@ -58,7 +79,26 @@
                     <label for="gravity-check">Enable gravity</label><br>
                 </div>
             </div>
+
             <div class="break"></div>
+            <div class="horizontal-container">
+                <div class="horizontal">
+                    <input type="checkbox" name="popout-check" id="popout-check">
+                    <label for="popout-check">Pop-out mode</label><br>
+                </div>
+            </div>
+            <div class="horizontal-container" id="popout-div" style="display: none">
+                <div class="horizontal">
+                    <input type="checkbox" name="bottom-only-check" id="bottom-only-check" checked>
+                    <label for="bottom-only-check">Only remove from bottom</label><br>
+                </div>
+                <div class="horizontal">
+                    <input type="checkbox" name="popout-enemies-check" id="popout-enemies-check" checked>
+                    <label for="popout-enemies-check">Enable popping out enemy coins</label><br>
+                </div>
+            </div>
+            <div class="break"></div>
+
             <div class="horizontal-container">
                 <div class="horizontal">
                     <input type="checkbox" name="portal-check" id="portal-check">
@@ -76,28 +116,7 @@
                 </div>
                 <div class="horizontal">
                     <p>Instability factor: </p>
-                    <input id="instability" type="number" min="1" value="3">
-                </div>
-            </div>
-            <hr>
-
-            <!-- game info -->
-            <h4>Game info</h4>
-            <div class="horizontal-container">
-                <div class="horizontal">
-                    <div id="player">Current player</div>
-                </div>
-                <div class="horizontal">
-                    <div id=timer>00:00</div>
-                </div>
-                <div class="horizontal">
-                    <button onclick="reset_game()" id="reset">reset game</button>
-                </div>
-                <div class="horizontal">
-                    <div id="notifications"></div>
-                </div>
-                <div class="horizontal">
-                    <button onclick="changeBoardSize()">Toggle board size</button>
+                    <input id="instability" type="number" value="3">
                 </div>
             </div>
             <hr>
@@ -112,7 +131,7 @@
                 <ul>
                     <li><p>
                         <b>No. rows / No. columns</b><br>
-                        This option changes the size of the board. The board is programmed to always try to be 1200 pixels wide, but if this is too little, you can use the <i>Toggle board size</i> button to make it fill as much room as possible.
+                        This option changes the dimensions of the board. The board is programmed to always try to be 1200 pixels wide, but if this is too small for your board, you can use the <i>Toggle board size</i> button to make it fill as much room as possible.
                     </p></li>
                     <li><p>
                         <b>No. players</b><br>
@@ -136,16 +155,19 @@
                         Normally, a coin can only be placed in the bottommost empty slot of each column. Disabling gravity is like placing the board flat on the ground, you can now put coins in every empty slot. Combining this with allowing wrap around wins and multiple players makes for some interesting games!
                     </p></li>
                     <li><p>
+                        <b>Pop-out mode</b><br>
+                        If enabled, a player can remove a coin from the board rather than placing in a new one. This comes with a few options: only being allowed to remove your own coins, and only being allowed to remove coins from the bottom row. Once a coin is removed, all coins above will fall down (assuming gravity isn't disabled), and create new possibilities to connect 4 coins.
+                    </p></li>
+                    <li><p>
                         <b>Portals</b><br>
                         This whack gamemode creates a bunch of portals, which connect various cells that are far away from each other. Each portal belongs to a set, and every portal in a set is connected to every other portal in that set. This is denoted by a number in the cell. How many sets there are and how big a set is, is up to you.<br>
                         In order to use a portal, you need to control both portals you are trying to use (the rest of the set doesn't matter). A line of coins can go in one portal, and come out the other, continuing in the same direction. That is, if you go in horizontally from the left in one portal, you continue horizontally on the right side. Both portals count as one coin, combined. If you loop around and enter a portal from the same set again, you create an infinite loop and win automatically.<br>
-                        Finally, the instability factor indicates how often the portals shift around. Once a certain amount of rounds have passed (one round being everyone playing one coin), all portals randomly change. If this now causes a win, that player wins immediately (if multiple players now win, the game chooses whatever winner it finds first). Setting the instability factor to a negative number prevents it from changing.
+                        Finally, the instability factor indicates how often the portals shift around. Once a certain amount of rounds have passed (one round being everyone playing one coin), all portals randomly change. If this now causes a win, that player wins immediately (if multiple players now win, the game chooses whatever winner it finds first). Setting the instability factor to a negative number prevents the portals from changing.
                     </p></li>
                 </ul>
-                <p>
-                    If you find any bugs or unexpected behavior, please contact me on discord, my username is Andy_Go#1068. Feedback, questions and suggestions for new options, games, gamemodes are also always welcome.
-                </p>
             </div>
+            <hr>
+            <p>If you find any bugs or unexpected behavior, please contact me on discord, my username is Andy_Go#1068. Feedback, questions and suggestions for new options, games, gamemodes are also always welcome.</p>
 
         </div>
     </div>

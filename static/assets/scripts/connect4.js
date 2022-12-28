@@ -15,6 +15,10 @@ let checkD1 = true;     // Primary diagonal \
 let checkD2 = true;     // Secondary diagonal /
 let torus = false;
 let gravity = true;
+let popout = false;
+let bottomOnly = true;
+let popoutEnemies = true;
+let enabledPortals = false;
 let setSize = 2;
 let setAmount = 2;
 let instability = 3;
@@ -50,19 +54,19 @@ window.onload = function(){
     draw();
 
     document.getElementById("amount_of_rows").onchange = function(){
-        amount_of_rows = this.value;
+        amount_of_rows = Number(this.value);
         reset_game();
     }
     document.getElementById("amount_of_columns").onchange = function(){
-        amount_of_columns = this.value;
+        amount_of_columns = Number(this.value);
         reset_game();
     }
     document.getElementById("playerCount").onchange = function(){
-        playerCount = this.value;
+        playerCount = Number(this.value);
         reset_game();
     }
     document.getElementById("winAmount").onchange = function(){
-        winAmount = this.value;
+        winAmount = Number(this.value);
         reset_game();
     }
     document.getElementById("horizontal-check").onchange = function(){
@@ -89,21 +93,36 @@ window.onload = function(){
         gravity = this.checked;
         reset_game();
     }
+    document.getElementById("popout-check").onchange = function(){
+        popout = this.checked;
+        if(popout) document.getElementById("popout-div").style = "display: inline-block";
+        else document.getElementById("popout-div").style = "display: none";
+        reset_game();
+    }
+    document.getElementById("bottom-only-check").onchange = function(){
+        bottomOnly = this.checked;
+        reset_game();
+    }
+    document.getElementById("popout-enemies-check").onchange = function(){
+        popoutEnemies = this.checked;
+        reset_game();
+    }
     document.getElementById("portal-check").onchange = function(){
-        if(this.checked) document.getElementById("portal-div").style = "display: inline-block";
+        enabledPortals = this.checked;
+        if(enabledPortals) document.getElementById("portal-div").style = "display: inline-block";
         else document.getElementById("portal-div").style = "display: none";
         reset_game();
     }
     document.getElementById("setSize").onchange = function(){
-        setSize = this.value;
+        setSize = Number(this.value);
         reset_game();
     }
     document.getElementById("setAmount").onchange = function(){
-        setAmount = this.value;
+        setAmount = Number(this.value);
         reset_game();
     }
     document.getElementById("instability").onchange = function(){
-        instability = this.value;
+        instability = Number(this.value);
         reset_game();
     }
 
@@ -123,7 +142,8 @@ function draw(){
         for(let j = 0; j < amount_of_columns; j++){
             let cell = document.getElementById('game_table').rows[i].cells[j];
             let style = `width: ${cellWidth}px; height: ${cellWidth}px; border-radius: ${cellWidth/2}px; background-color: ${colors[game_state[i][j]]};`;
-            if(cell.classList.contains('highlighted')) style += `border: ${thickness}px solid #008000;`;
+            if(cell.classList.contains('inputable')) style += `border: ${thickness}px solid #008000;`;
+            if(cell.classList.contains('popoutable')) style += `border: ${thickness}px solid #00ffff;`;
             cell.style = style;
         }
     }
@@ -142,9 +162,13 @@ function get_cell_html(row, column){
     let cell_html = "<td";
 
     let move = get_first_empty_slot(column);
-    if((move == row || !gravity && game_state[row][column] == 0) && !has_finished){
-        cell_html += ` class="highlighted" onclick="add_coin(${column}, ${row})"`;
+    if((move == row || !gravity && game_state[row][column] == 0) && !has_finished){     // Able to place a coin here
+        cell_html += ` class="inputable" onclick="add_coin(${row}, ${column})"`;
     }
+    if(popout && !has_finished && game_state[row][column] != 0 && (popoutEnemies || game_state[row][column] == current_player) && (!bottomOnly || row == amount_of_rows-1)){
+        cell_html += ` class="popoutable" onclick="popoutCoin(${row}, ${column})"`;
+    }
+
     cell_html += ">";
 
     let index = portals[row][column];
@@ -169,55 +193,76 @@ function get_first_empty_slot(column){
     return row;
 }
 
-function add_coin(column, row){
+function add_coin(row, column){
+    current_turn++;
     game_state[row][column] = current_player;
     check_game_state(row, column);
     change_active_player();
     draw();
 }
 
+function popoutCoin(row, column){
+    current_turn--;
+    if(!gravity) game_state[row][column] = 0;
+    else{
+        for(let i = row; i > 0; i--){
+            game_state[i][column] = game_state[i-1][column];
+        }
+        game_state[0][column] = 0;
+    }
+    checkAllCells(column);
+    change_active_player();
+    draw();
+}
+
 function change_active_player(){
     if(has_finished) return;
-    current_turn++;
     current_player = (current_player)%playerCount + 1;
     if(current_player == 1){
-        if(--turnsUntilPortalShift == 0){
+        if(--turnsUntilPortalShift == 0 && enabledPortals){
             turnsUntilPortalShift = instability;
             notify("The portals are shifting...");
             updatePortals();
-            checkAllCells();
+            checkBoard();
         }
     }
-    let color = colors[current_player];
-    document.getElementById("player").style.backgroundColor = color;
+    document.getElementById("player").style.backgroundColor = colors[current_player];
 }
 
-function has_won(){
+function has_won(player){
     has_finished = true;
-    notify(colorStrings[current_player] + " won!");
+    notify(colorStrings[player] + " won!");
 }
 
 // Iterates around the board and checks each cell for a win as if it had just been placed.
 // Very inefficient, so only call when really needed
-function checkAllCells(){
+function checkBoard(){
     for(let i = 0; i < amount_of_rows; i++){
-        for(let j = 0; j < amount_of_columns; j++){
-            check_game_state(i, j);
-        }
+        checkAllCells(i);
+    }
+}
+
+// Iterates through a column and checks each cell for a win as if it had just been placed.
+// Very inefficient, so only call when really needed
+function checkAllCells(column){
+    for(let i = 0; i < amount_of_rows; i++){
+        check_game_state(i, column);
     }
 }
 
 function check_game_state(row, column){
+    if(game_state[row][column] == 0) return;
     if(checkHz) check_generalized(row, column, 0, 1);       // Horizontal
     if(checkVt) check_generalized(row, column, 1, 0);       // Vertical
     if(checkD1) check_generalized(row, column, 1, 1);       // Main diagonal
     if(checkD2) check_generalized(row, column, 1, -1);      // Secondary diagonal
+    check_draw();
 }
 
 function check_generalized(row, column, row_increment, column_increment){
     let count = countOneWay(row, column, row_increment, column_increment, game_state[row][column], []) + countOneWay(row, column, -row_increment, -column_increment, game_state[row][column], []) - 1;
     if(count >= winAmount){
-        has_won();
+        has_won(game_state[row][column]);
     }
 }
 
@@ -232,7 +277,7 @@ function countOneWay(row, column, row_increment, column_increment, player, visit
 
     let count = 0;
 
-    while(in_board(row, column) && game_state[row][column] == player){
+    while(in_board(row, column) && game_state[row][column] == player && count < winAmount){
         count++;
 
         let set = portals[row][column];
@@ -267,7 +312,7 @@ function in_board(row, column){
 }
 
 function check_draw(){
-    if(current_turn == amount_of_rows*amount_of_columns){
+    if(!popout && current_turn == amount_of_rows*amount_of_columns){
         notify("The game is a draw.");
         document.getElementById("player").style.backgroundColor = "#ffffff";
         has_finished = true;
@@ -278,7 +323,7 @@ function check_draw(){
 // And stores it in the variable portals as an array of arrays, where each cell is represented by its linearized index
 function updatePortals(){
     portals = create_empty_board();
-    if(!document.getElementById("portal-check").checked) return;        // Portals are disabled, so need empty set
+    if(!enabledPortals) return;        // Portals are disabled, so need empty set
 
     for(let i = 0; i < setAmount; i++){
         for(let j = 0; j < setSize; j++){
@@ -305,6 +350,7 @@ function initialize_game_variables(){
     turnsUntilPortalShift = instability;
     game_state = create_empty_board();
     updatePortals();
+    document.getElementById("player").style.backgroundColor = colors[current_player];
 }
 
 function reset_game(){
@@ -316,12 +362,14 @@ function reset_game(){
 
 function checkViability(){
     let portal = (setAmount*setSize) <= (amount_of_columns*amount_of_rows);     // Are there more portals than cells?
-    let size = amount_of_columns >= winAmount || amount_of_rows >= winAmount || torus || document.getElementById("portal-check").checked;       // Is it possible to get a long enough chain?
+    let size = amount_of_columns >= winAmount || amount_of_rows >= winAmount || torus || enabledPortals;       // Is it possible to get a long enough chain?
     let winDirection = checkHz || checkVt || checkD1 || checkD2;        // Is there a direction in which you can win?
     let viable = portal && size && winDirection;        // combine booleans
     if(!viable) notify("Your current settings create an impossible board (e.g. you have more portals than available cells). Please change them.");
     return viable;
 }
+
+/* HELPER FUNCTIONS */
 
 // Source: based on https://stackoverflow.com/questions/5517597/plain-count-up-timer-in-javascript
 function update_timer(){
