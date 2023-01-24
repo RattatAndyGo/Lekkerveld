@@ -13,6 +13,7 @@ let checkHz = true;
 let checkVt = true;
 let checkD1 = true;     // Primary diagonal \
 let checkD2 = true;     // Secondary diagonal /
+let mirror = false;
 let torus = false;
 let gravity = true;
 let popout = false;
@@ -83,6 +84,10 @@ window.onload = function(){
     }
     document.getElementById("diagonal2-check").onchange = function(){
         checkD2 = this.checked;
+        reset_game();
+    }
+    document.getElementById("mirror-check").onchange = function(){
+        mirror = this.checked;
         reset_game();
     }
     document.getElementById("torus-check").onchange = function(){
@@ -277,7 +282,7 @@ function countOneWay(row, column, row_increment, column_increment, player, visit
 
     let count = 0;
 
-    while(in_board(row, column) && game_state[row][column] == player && count < winAmount){
+    while(game_state[row][column] == player && count < winAmount){
         count++;
 
         let set = portals[row][column];
@@ -300,9 +305,29 @@ function countOneWay(row, column, row_increment, column_increment, player, visit
         row += row_increment;
         column += column_increment;
 
-        if(!torus) continue;
-        row = mod(row, amount_of_rows);
-        column = mod(column, amount_of_columns);
+        if(!in_board()){
+            if(torus){
+                row = mod(row, amount_of_rows);
+                column = mod(column, amount_of_columns);
+                continue;
+            }
+            if(mirror){
+                if(row == -1){
+                    row = 1; row_increment *= -1;
+                }
+                if(row == amount_of_rows){
+                    row -= 2; row_increment *= -1;
+                }
+                if(column == -1){
+                    column = 1; column_increment *= -1;
+                }
+                if(column == amount_of_columns){
+                    column -= 2; column_increment *= -1;
+                }
+                continue;
+            }
+            break;
+        }
     }
     return count;
 }
@@ -364,7 +389,9 @@ function checkViability(){
     let portal = (setAmount*setSize) <= (amount_of_columns*amount_of_rows);     // Are there more portals than cells?
     let size = amount_of_columns >= winAmount || amount_of_rows >= winAmount || torus || enabledPortals;       // Is it possible to get a long enough chain?
     let winDirection = checkHz || checkVt || checkD1 || checkD2;        // Is there a direction in which you can win?
-    let viable = portal && size && winDirection;        // combine booleans
+    let exclusiveness = !(torus && mirror);             // Mirror mode and torus mode are incompatible
+    let mirrorLoop = !mirror || (amount_of_columns > 1 && amount_of_rows > 1);      // Board size 1 mirrors rows out of bounds
+    let viable = portal && size && winDirection && exclusiveness && mirrorLoop;        // Combine booleans
     if(!viable) notify("Your current settings create an impossible board (e.g. you have more portals than available cells). Please change them.");
     return viable;
 }

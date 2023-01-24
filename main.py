@@ -23,4 +23,8 @@ def connect4():
 def bingoCard():
     return render_template("bingo-card.html")
 
+@app.route('/unfair-wordle')
+def unfairWordle():
+    return render_template("unfair-wordle.html")
+
 app.run(host="0.0.0.0", port=5000)

@@ -73,6 +73,8 @@
                     <label for="diagonal2-check">secondary diagonal /</label><br>
                 </div>
                 <div class="horizontal">
+                    <input type="checkbox" name="mirror-check" id="mirror-check">
+                    <label for="mirror-check">Mirror mode</label><br>
                     <input type="checkbox" name="torus-check" id="torus-check">
                     <label for="torus-check">Allow wrap around</label><br>
                     <input type="checkbox" name="gravity-check" id="gravity-check" checked>
@@ -144,6 +146,10 @@
                     <li><p>
                         <b>Direction toggles</b><br>
                         These 4 checkboxes can be used to enable/disable winning in a certain direction. For example, if only horizontal is checked, you can only win with a horizontal row of coins. Getting 4 in a row in any other direction won't do anything.
+                    </p></li>
+                    <li><p>
+                        <b>Mirror mode</b><br>
+                        With mirror mode active, the edges of the board are like a mirror: a 4 in a row can bounce from it and continue in another direction. The new direction is just like a real mirror would work. Careful with horizontal and vertical lines that touch an edge, as they only need to be half+1 the size as before!
                     </p></li>
                     <li><p>
                         <b>Allow wrap around</b><br>
