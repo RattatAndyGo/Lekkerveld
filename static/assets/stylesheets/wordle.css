@@ -1,0 +1,10 @@
+td{
+    height: 6rem;
+    width: 6rem;
+    border: 5px solid gray;
+}
+
+#page-content{
+    align-items: center;
+    justify-content: center;
+}

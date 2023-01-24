@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
     {% include 'includes/head.html' %}
+    <script type="text/javascript" src="static/assets/scripts/wordle.js"></script>
+    <link rel="stylesheet" href="static/assets/stylesheets/wordle.css"/>
 
-    <title>FAQ</title>
+    <title>Unfair Wordle</title>
 </head>
 
 <body>
@@ -13,15 +15,15 @@
         <div id="page-content">
             <h1>Unfair Wordle</h1>
 
-            <div>
-                <!-- wordle board -->
+            <div id="game_field">
+                <table id="game_table"></table>
             </div>
 
-            <div>
+            <div id="keyboard">
                 <!-- keyboard -->
             </div>
 
-            <div>
+            <div id="rules">
                 <!-- rules -->
             </div>
 
