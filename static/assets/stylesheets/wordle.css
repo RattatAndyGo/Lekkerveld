@@ -2,7 +2,16 @@ td{
     height: 6rem;
     width: 6rem;
     border: 5px solid gray;
+    font-size: 3rem;
+    font-weight: 900;
 }
+
+td p{
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
 
 #page-content{
     align-items: center;
