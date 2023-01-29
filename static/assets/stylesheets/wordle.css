@@ -17,3 +17,17 @@ td p{
     align-items: center;
     justify-content: center;
 }
+
+#notifications{
+    width: fit-content;
+    height: fit-content;
+    position: absolute;
+    background-color: #505050;
+    border-radius: 1rem;
+}
+
+#notifications p{
+    color: #f6f6f6;
+    padding: 2rem;
+    font-size: larger;
+}
