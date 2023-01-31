@@ -7,6 +7,10 @@ let answer = "blank";               // Answer of the puzzle
 let guessedWords = [];              // Array of guessed words
 let possibleAnswers;                // List of all answers still possible given the current known information
 
+let gray = "#333333";
+let yellow = "#cccc00";
+let green = "#00ff00";
+
 // Runs every time a key is pressed, and does something depending on the key in question
 const processKeystroke = (e) => {
     key = String(e.key);
@@ -70,6 +74,26 @@ function draw(){
     }
     document.getElementById("game_table").innerHTML = field_html;
     colorSquares();
+
+    // Keyboard
+    if(guessedWords.length == 0){       // In case of a game reset, clear all colors
+        document.querySelectorAll("button").forEach((e) => {e.style.backgroundColor = "";});
+        return;
+    }
+    for(let i = 0; i < columns; i++){
+        let button = document.getElementById(`${guessedWords[guessedWords.length - 1][i]}`);
+        let char = button.innerHTML.toLocaleLowerCase();
+        if(button.style.backgroundColor == green) continue;     // Prevent overwriting of green value
+        if(answer.indexOf(`${char}`) == -1){
+            button.style.backgroundColor = gray;
+            continue;
+        }
+        if(answer.charAt(i) == char){
+            button.style.backgroundColor = green;
+            continue;
+        }
+        button.style.backgroundColor = yellow;
+    }
 }
 
 function colorSquares(){
@@ -79,7 +103,7 @@ function colorSquares(){
         // First pass for green letters
         for(let j = 0; j < columns; j++){
             if(word[j] == answerCopy[j]){
-                document.getElementById(`cell${i}-${j}`).style = "background-color: #00ff00;";
+                document.getElementById(`cell${i}-${j}`).style.backgroundColor = green;
                 word = setCharAt(word, j, 0);
                 answerCopy = setCharAt(answerCopy, j, 0);
             }
@@ -89,11 +113,11 @@ function colorSquares(){
             if(word[j] == "0") continue;        // indicates green letter, skip
             index = answerCopy.indexOf(word[j]);
             if(index == -1){
-                document.getElementById(`cell${i}-${j}`).style = "background-color: #333333;";
+                document.getElementById(`cell${i}-${j}`).style.backgroundColor = gray;
                 continue;
             }
             answerCopy = setCharAt(answerCopy, index, 0);
-            document.getElementById(`cell${i}-${j}`).style = "background-color: #cccc00;";
+            document.getElementById(`cell${i}-${j}`).style.backgroundColor = yellow;
         }
     }
 }
@@ -175,6 +199,14 @@ function notify(str){
     container.innerHTML = `<p>${str}</p>`;
     container.style = "display: block";
     setTimeout(function(){container.style = "display: none;"}, 3000);
+}
+
+function reset(){
+    if(!window.confirm("Are you sure you want to reset your game?\n" + "(You can reset more quickly using ctrl+R)")) return;        // TODO fix enter triggering again
+    guessedWords = [];
+    currentGuess = "";
+    possibleAnswers = answerList;
+    draw();
 }
 
 function setCharAt(str,index,chr) {

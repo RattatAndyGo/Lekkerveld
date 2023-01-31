@@ -14,26 +14,66 @@
     <div id="page-container"> 
         <div id="page-content">
 
-            <div id="notifications" style="display: none">
-                <p>sample text</p>
-            </div>
+            <div id="notifications" style="display: none"></div>
 
             <h1>Unfair Wordle</h1>
+
+            <div class="horizontal-container">
+                <div class="horizontal">
+                    <button id="reset" onclick="reset()">Reset game</button>
+                </div>
+                <div class="horizontal">
+                    <p id="timer">00:00</p>
+                </div>
+            </div>
 
             <div id="game_field">
                 <table id="game_table"></table>
             </div>
 
             <div id="keyboard">
-                <!-- TODO -->
+                <div class="first-row">
+                    <button id="q">Q</button>
+                    <button id="w">W</button>
+                    <button id="e">E</button>
+                    <button id="r">R</button>
+                    <button id="t">T</button>
+                    <button id="y">Y</button>
+                    <button id="u">U</button>
+                    <button id="i">I</button>
+                    <button id="o">O</button>
+                    <button id="p">P</button>
+                </div>
+                <div class="second-row">
+                    <button id="a">A</button>
+                    <button id="s">S</button>
+                    <button id="d">D</button>
+                    <button id="f">F</button>
+                    <button id="g">G</button>
+                    <button id="h">H</button>
+                    <button id="j">J</button>
+                    <button id="k">K</button>
+                    <button id="l">L</button>
+                </div>
+                <div class="third-row">
+                    <button id="del">DEL</button>
+                    <button id="z">Z</button>
+                    <button id="x">X</button>
+                    <button id="c">C</button>
+                    <button id="v">V</button>
+                    <button id="b">B</button>
+                    <button id="n">N</button>
+                    <button id="m">M</button>
+                    <button id="enter">ENTER</button>
+                </div>
             </div>
             <hr>
 
             <div id="rules">
                 <h4>The concept</h4>
                 <p>
-                    Unfair Wordle is just like regular Wordle, except it feels a bit... unfair. Every time you guess, the game chooses a different answer, in such a way that you still have a lot of possibilities left. Luckily, the new answer still follows the coloring of previous guesses, so eventually you have so much information that there is one answer left, so it cannot change anymore.<br>
-                    The word list and the answer list are the same as regular wordle, although around 200 words were removed from the answer list as they were deemed too obscure.
+                    Unfair Wordle works just like <a href="https://www.nytimes.com/games/wordle/index.html">regular Wordle</a>, except it feels a bit... unfair. 
+                    The word list and the answer list are the same as regular Wordle, although around 200 words were removed from the answer list as they were deemed too obscure.
                 </p>
             </div>
             {% include 'includes/footer.html' %}
