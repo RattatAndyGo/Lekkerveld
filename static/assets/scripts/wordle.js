@@ -13,7 +13,19 @@ let green = "#00ff00";
 
 // Runs every time a key is pressed, and does something depending on the key in question
 const processKeystroke = (e) => {
-    key = String(e.key);
+    processLetter(String(e.key));
+}
+
+window.onload = function(){
+    draw();
+    document.querySelectorAll("button").forEach((e) => {
+        e.onclick = function(){processLetter(e.id)};
+        console.log("beep boop");
+    });
+}
+
+function processLetter(key){
+    console.log(key);
     if(key == "Enter"){
         guess();
         return;
@@ -29,10 +41,6 @@ const processKeystroke = (e) => {
 
     currentGuess += key;
     document.getElementById(`input${currentGuess.length-1}`).innerHTML = `<p>${key.toUpperCase()}</p>`;
-}
-
-window.onload = function(){
-    draw();
 }
 
 // Keyboard listener to detect keystrokes
