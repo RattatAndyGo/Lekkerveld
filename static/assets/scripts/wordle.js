@@ -1,3 +1,6 @@
+// TODO draw functions using "new DOMelement('td')" instead of strings (Also in c4 code)
+// TODO add option to remove win screen to show guesses
+
 let wordList;
 let answerList;
 let rows = 6;                       // Minimum amount of displayed rows
@@ -20,12 +23,10 @@ window.onload = function(){
     draw();
     document.querySelectorAll("button").forEach((e) => {
         e.onclick = function(){processLetter(e.id)};
-        console.log("beep boop");
     });
 }
 
 function processLetter(key){
-    console.log(key);
     if(key == "Enter"){
         guess();
         return;
@@ -161,6 +162,13 @@ function changeAnswer(){
         if(arr[i].length < max.length) continue;
         if(arr[i].length > max.length || Math.floor(Math.random()*2) == 1) max = arr[i];        // either it is greater, or it is equal and won the 50/50, so change
     }
+
+    // Prevents winning when all words give unique colorations, theoretical infinite loop but infinitely unlikely
+    if(max[0] == currentGuess && possibleAnswers.length != 1){
+        changeAnswer();
+        return;
+    }
+
     possibleAnswers = max;
     answer = possibleAnswers[0];
 }
@@ -189,15 +197,33 @@ function getColorCombination(guess, ans){
     return result;
 }
 
+// Gives the color of the letter at the given index in the given word
+// 0 == grey, 1 == yellow, 2 == green
+function getColor(word, index){
+    let combination = getColorCombination(word, answer);
+    index = columns - index - 1;
+    combination = Math.floor(combination/(3**index));
+    combination = combination%3;
+    return combination;
+}
+
 // Runs when correct guess has been made
 function checkWin(){
     if(guessedWords[guessedWords.length - 1] != answer) return;
 
     document.removeEventListener("keydown", processKeystroke);
     if(guessedWords.length >= 6) document.getElementById("input-row").innerHTML = "";
-    alert("you won!");  // TODO proper notification that doesn't disappear after 3 seconds, with emoji copy and similar
+    setTimeout(showWinScreen(), 20000);
 }
 
+function showWinScreen(){
+    let container = document.getElementById("notifications");
+    let content = `<p>You won after ${guessedWords.length} guesses!</p><button onclick='copyEmojiResult()'>Share result</button>`;
+    container.innerHTML = content;
+    container.style = "display: flex";
+}
+
+// Shows a notification for 3 seconds, if input is an empty string any notification is cleared
 function notify(str){
     let container = document.getElementById("notifications");
     if(str == ""){
@@ -205,16 +231,56 @@ function notify(str){
         return;
     }
     container.innerHTML = `<p>${str}</p>`;
-    container.style = "display: block";
+    container.style = "display: flex";
     setTimeout(function(){container.style = "display: none;"}, 3000);
 }
 
 function reset(){
-    if(!window.confirm("Are you sure you want to reset your game?\n" + "(You can reset more quickly using ctrl+R)")) return;        // TODO fix enter triggering again
+    console.log("beep");
+    if(!window.confirm("Are you sure you want to reset your game?\n" + "(You can reset more quickly using ctrl+R)")) return;
     guessedWords = [];
     currentGuess = "";
     possibleAnswers = answerList;
     draw();
+}
+
+// Adapted from https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
+function copyEmojiResult() {
+    let emojis = '';
+    for(let i = 0; i < guessedWords.length; i++){
+        for(let j = columns-1; j >= 0; j--){
+            let color = getColor(guessedWords[i], j);
+            if(color == 0){
+                emojis = emojis.concat('⬛');
+                continue;
+            }
+            if(color == 1){
+                emojis = emojis.concat('🟨');
+                continue;
+            }
+            emojis = emojis.concat('🟩');
+        }
+        emojis = emojis.concat('\n');
+    }
+
+    var textArea = document.createElement("textarea");
+    textArea.value = emojis;
+    
+    // Avoid scrolling to bottom
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+  
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+  
+    try {
+      var successful = document.execCommand('copy');
+    } catch (err) {
+      console.error('Oops, unable to copy', err);
+    }
+    document.body.removeChild(textArea);
 }
 
 function setCharAt(str,index,chr) {
