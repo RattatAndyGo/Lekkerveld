@@ -1,5 +1,4 @@
 // TODO draw functions using "new DOMelement('td')" instead of strings (Also in c4 code)
-// TODO add option to remove win screen to show guesses
 
 let wordList;
 let answerList;
@@ -10,18 +9,32 @@ let answer = "blank";               // Answer of the puzzle
 let guessedWords = [];              // Array of guessed words
 let possibleAnswers;                // List of all answers still possible given the current known information
 
-let gray = "#333333";
-let yellow = "#cccc00";
-let green = "#00ff00";
+let gray = "rgb(51, 51, 51)";
+let yellow = "rgb(204, 204, 0)";
+let green = "rgb(0, 255, 0)";
+
+let total_seconds = 0;
 
 // Runs every time a key is pressed, and does something depending on the key in question
 const processKeystroke = (e) => {
-    processLetter(String(e.key));
+    let key = String(e.key);
+    if(key == "Escape"){
+        notify('');
+        return;
+    }
+    processLetter(key);
 }
 
 window.onload = function(){
+    // Start the timer
+    const timer = setInterval(update_timer(), 1000);
+    
+    // Keyboard listener to detect keystrokes
+    document.addEventListener("keydown", processKeystroke);
     draw();
-    document.querySelectorAll("button").forEach((e) => {
+
+    // Give keyboard buttons functionality
+    document.querySelectorAll(".key").forEach((e) => {
         e.onclick = function(){processLetter(e.id)};
     });
 }
@@ -43,9 +56,6 @@ function processLetter(key){
     currentGuess += key;
     document.getElementById(`input${currentGuess.length-1}`).innerHTML = `<p>${key.toUpperCase()}</p>`;
 }
-
-// Keyboard listener to detect keystrokes
-document.addEventListener("keydown", processKeystroke);
 
 // Draws the HTML on screen
 function draw(){
@@ -92,6 +102,7 @@ function draw(){
     for(let i = 0; i < columns; i++){
         let button = document.getElementById(`${guessedWords[guessedWords.length - 1][i]}`);
         let char = button.innerHTML.toLocaleLowerCase();
+
         if(button.style.backgroundColor == green) continue;     // Prevent overwriting of green value
         if(answer.indexOf(`${char}`) == -1){
             button.style.backgroundColor = gray;
@@ -211,7 +222,6 @@ function getColor(word, index){
 function checkWin(){
     if(guessedWords[guessedWords.length - 1] != answer) return;
 
-    document.removeEventListener("keydown", processKeystroke);
     if(guessedWords.length >= 6) document.getElementById("input-row").innerHTML = "";
     setTimeout(showWinScreen(), 20000);
 }
@@ -236,8 +246,9 @@ function notify(str){
 }
 
 function reset(){
-    console.log("beep");
     if(!window.confirm("Are you sure you want to reset your game?\n" + "(You can reset more quickly using ctrl+R)")) return;
+
+    total_seconds = 0;
     guessedWords = [];
     currentGuess = "";
     possibleAnswers = answerList;
@@ -281,6 +292,27 @@ function copyEmojiResult() {
       console.error('Oops, unable to copy', err);
     }
     document.body.removeChild(textArea);
+}
+
+// Source: based on https://stackoverflow.com/questions/5517597/plain-count-up-timer-in-javascript
+function update_timer(){
+    if(guessedWords[guessedWords.length - 1] == answer) clearInterval(timer);
+
+    let minutes = add_leading_zero(Math.floor(total_seconds/60));
+    let seconds = add_leading_zero(total_seconds % 60);
+    let time = minutes + ":" + seconds;
+
+    document.getElementById("timer").innerHTML = time;
+    total_seconds++;
+
+}
+
+function add_leading_zero(number){
+    let res = `${number}`;
+    if(res.length == 1){
+        res = "0" + res;
+    }
+    return res;
 }
 
 function setCharAt(str,index,chr) {
