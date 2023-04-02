@@ -1,5 +1,6 @@
 from flask import *
 import os
+from random import randint
 # import sys
 from PIL import Image
 
@@ -39,12 +40,13 @@ def merge(im1, im2):
 
     return im
 
-def generateBingoCard(images, freeSquare : bool,  width = 5, height = 5):
+# All Pokemon sprites sourced from https://veekun.com/dex/downloads
+def generateBingoCard(images : list, freeSquare : bool, completed : list, game : str, useShiny = False, width = 5, height = 5):
     im = Image.open("static/assets/images/bingo/bingo_template.jpg").copy()
-    for i in range(width):
-        for j in range(height):
-            pokemon = Image.open("static/assets/images/bingo/rattata.png")
-            im.paste(pokemon, (125 + 300*i, 450 + 300*j))
+    for i in range(height):
+        for j in range(width):
+            pokemon = Image.open("static/assets/images/bingo/{}/{}.png".format(game, images[i*height+j])).resize((279, 279))
+            im.paste(pokemon, (41 + 294*j, 358 + 308*i))
     im.show()
 
 # TODO
@@ -53,5 +55,14 @@ def generateBingoCard(images, freeSquare : bool,  width = 5, height = 5):
 # return image
 # frontend interface + connection to backend
 
-generateBingoCard([], True)
+pokemon = []
+completed = []
+for i in range(25):
+    pokemon.append(randint(1, 493))
+    completed.append(False)
+generateBingoCard(pokemon, 
+                  True, 
+                  completed,
+                  "platinum",
+                 )
 app.run(host="0.0.0.0", port=5000)
