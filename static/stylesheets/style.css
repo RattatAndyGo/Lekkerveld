@@ -102,11 +102,7 @@ nav{
     scrollbar-width: none;  /* Firefox */
 } 
 
-#logo{
-    height: 100%;
-}
-
-img{
+#logo, #logo img{
     height: 100%;
 }
 
@@ -139,4 +135,9 @@ hr{
 
 .break{
     height: 0.5rem;
+}
+
+button{
+    min-width: 2rem;
+    min-height: 1rem;
 }

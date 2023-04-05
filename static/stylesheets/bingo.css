@@ -1,0 +1,35 @@
+img{
+    object-fit: contain;
+    width: 100%;
+}
+
+td{
+    background-color: var(--background);
+}
+
+table{
+    background-color: black;
+}
+
+#generate{
+    margin: 1rem 40%;
+    height: 3rem;
+    width: 20%;
+}
+
+#mass-changer{
+    margin: 1rem 0;
+    border: 2px solid black;
+    display: flex;
+}
+
+#mass-changer p{
+    margin: auto;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+#mass-changer select{
+    height: fit-content;
+    margin: 0.5rem 1rem;
+}

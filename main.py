@@ -1,10 +1,12 @@
 from flask import *
 import os
-from random import randint
-# import sys
+from random import randint, choice
 from PIL import Image
+import pathlib
 
 app = Flask(__name__)
+
+# APP ROUTES
 
 @app.route('/favicon.ico')
 def favicon():
@@ -12,23 +14,19 @@ def favicon():
 
 @app.route('/')
 def home():
-    return render_template("home.html")
+    return redirect("/home")
 
-@app.route('/faq')
-def faq():
-    return render_template("faq.html")
+@app.route('/<page>')
+def page(page):
+    return render_template("{}.html".format(page))
 
-@app.route('/connect4')
-def connect4():
-    return render_template("connect4.html")
+@app.route('/bingo', methods=['POST'])
+def bingoPost():
+    return formatBingoCard(json.loads(request.form.get('pokemon')))
 
-@app.route('/bingo-card')
-def bingoCard():
-    return render_template("bingo-card.html")
+# BACKEND CODE
 
-@app.route('/unfair-wordle')
-def unfairWordle():
-    return render_template("unfair-wordle.html")
+# BINGO CARD GENERATOR
 
 def merge(im1, im2):
     w = im1.size[0] + im2.size[0]
@@ -41,61 +39,92 @@ def merge(im1, im2):
     return im
 
 # All Pokemon sprites sourced from https://veekun.com/dex/downloads
-def generateBingoCard(images : list, completed : list, game : str, useShiny : bool, width, height):
+def generateBingoCard(pokemonList, width, height):
+    # Offset to first square, and length of a square
+    horizontal_offset = 41
+    vertical_offset = 358
+    horizontal_length = 294
+    vertical_length = 308
+
     im = Image.open("static/assets/images/bingo/bingo_template.jpg").copy()
-    if(useShiny):
-        game = game + "/shiny"
-    for i in range(height):
-        for j in range(width):
-            if(images[i*height+j] == -1):
-                pokemon = Image.open("static/assets/images/bingo/free.png")
-            else:
-                pokemon = Image.open("static/assets/images/bingo/{}/{}.png".format(game, images[i*height+j])).resize((279, 279))
-            im.paste(pokemon, (41 + 294*j, 358 + 308*i), pokemon.convert("RGBA"))
-            if(completed[i*height+j]):
-                completed_icon = Image.open("static/assets/images/bingo/completed.png")
-                im.paste(completed_icon, (41 + 294*j, 398 + 308*i), completed_icon.convert("RGBA"))
-    return im
 
-def formatBingoCard(images : list, freeSquare : bool, completed : list, game : str, useShiny = False, width = 5, height = 5):
+    cursor = [horizontal_offset, vertical_offset]     # coordinates of location next image
+
+    # Every pokemon is an array of strings, formatted like [dexNo, game, isShiny (normal or shiny), isCompleted (incompleted or completed)]
+    for pokemon in pokemonList:
+        if(pokemon[2] == 'shiny'):
+            pokemon[1] += "/shiny"
+
+        if(pokemon[0] == "free"):
+            sprite = Image.open("static/assets/images/bingo/free.png")
+        else:
+            sprite = Image.open("static/assets/images/bingo/{}/{}.png".format(pokemon[1], pokemon[0])).resize((279, 279))
+        im.paste(sprite, (cursor[0], cursor[1]), sprite.convert("RGBA"))
+
+        if(pokemon[3] == 'completed'):
+            completed_icon = Image.open("static/assets/images/bingo/completed.png")
+            im.paste(completed_icon, (cursor[0], cursor[1] + 40), completed_icon.convert("RGBA"))
+
+        # Update cursor
+        cursor[0] = (cursor[0] + horizontal_length)%(horizontal_length*width)
+        if(cursor[0] == horizontal_offset):
+            cursor[1] += vertical_length
+    
+    # SAVE im IN FOLDER, RETURN PATH TO IMAGE
+    name = randint(0, 999999999)    # Generate random number to serve as file name
+    path = pathlib.Path("static/assets/images/bingo/bingo-cards/{}.jpeg".format(name))
+    path.touch(exist_ok=True)
+    im.save(path, "JPEG")
+
+    return str(path)
+
+def formatBingoCard(pokemonList, width = 5, height = 5):
     pokemonMaxDict = {"gold":251, "silver":251, "crystal":251, "ruby-sapphire":386, "emerald":386, "firered-leafgreen":386, "diamond-pearl":493, "platinum":493, "heartgold-soulsilver":493, "black-white":649}
-    pokemonMax = pokemonMaxDict[game]
 
-    pokemonAmount = width * height
-    if(freeSquare):
-        pokemonAmount -= 1
-    while(len(images) < pokemonAmount):
-        i = randint(1, pokemonMax)
-        while(i in images):
-            i = randint(1, pokemonMax)
-        images.append(i)
-        completed.append(False)
-    if(freeSquare):
-        images.insert(len(images)//2, -1)
-        completed.insert(len(images)//2, False)
+    # Every pokemonList[i] is an array of strings, formatted like [dexNo, game, isShiny (normal or shiny), isCompleted (incompleted or completed)]
+    for i in range(len(pokemonList)):
+        for j in range(len(pokemonList[i])):
+            if(pokemonList[i][j] != "random"):
+                continue
+            pokemonList[i][j] = randomizeVariable(j)
 
-    generateBingoCard(images, completed, game, useShiny, width, height).show()
+        # pokemonList[i] is now non-random, input checks
+        if(pokemonList[i][0] == "free"):
+            pokemonList[i][1] = "normal"
+            pokemonList[i][2] = "incompleted"
+            continue
 
-# TODO
-# alternate forms
-# frontend interface + connection to backend (including all choices)
+        counter = 0
+        while(int(pokemonList[i][0]) > pokemonMaxDict[pokemonList[i][1]] or getFirstOccurrence(pokemonList, pokemonList[i][0]) != i):     # If game has no sprite for pokemon, choose different pokemon (typecast because bug)
+            pokemonList[i][0] = randomizeVariable(0)
+            counter += 1
+            if(counter > 127):
+                raise RecursionError("can't find a game with the pokemon in it (tried {} times)".format(counter))
+    
+    return generateBingoCard(pokemonList, width, height)
 
-pokemon = []
-completed = []
-for i in range(25):
-    mon = input("give a pokemon dex number: ")
-    if(mon == ""):
-        break
-    pokemon.append(mon)
-    completed.append(input("give a boolean: ") == "true")
-print(completed)
-freeSquare = (input("should there be a free square in the middle? ") == "yes")
-game = input("what game should the sprites come from? ")
-useShiny = (input("do you want to use shiny sprites? ") == "yes")
-formatBingoCard(pokemon, 
-                  freeSquare, 
-                  completed,
-                  game,
-                  useShiny
-                 )
+# Returns index of first Pokemon pokemon, or -1 if it is not present
+def getFirstOccurrence(pokemonList, pokemon):
+    for idx in range(len(pokemonList)):
+        if(pokemon == pokemonList[idx][0]):
+            return idx
+    print("Pokemon {} not found!".format(pokemon))
+    return -1
+
+# [dexNo, game, isShiny, isCompleted]
+def randomizeVariable(i):
+    match(i):
+        case 0:
+            return randint(1, 649)
+        case 1: 
+            games = ["gold", "silver", "crystal", "ruby-sapphire", "emerald", "firered-leafgreen", "diamond-pearl", "platinum", "heartgold-soulsilver", "black-white"]
+            return games[randint(0, len(games) - 1)]
+        case 2:
+            return("shiny" if randint(0, 1) == 1 else "normal")
+        case 3: 
+            return("completed" if randint(0, 1) == 1 else "incompleted")
+        
+
+
+# START UP WEBSITE
 app.run(host="0.0.0.0", port=5000)
