@@ -11,6 +11,17 @@ class Square{
     }
 }
 
+window.onload = function(){
+    let changerDiv = document.getElementById("mass-changer");
+    changerDiv.querySelectorAll("select").forEach((e) => {
+        e.onchange = function(){
+            Array.from(document.getElementsByClassName(e.className)).forEach((f) => {
+                f.value = e.value;
+            })
+        }
+    })
+}
+
 function requestBingoCard(){
     pokemonList = [];
     document.querySelectorAll(".input-td").forEach((e) => {
@@ -20,6 +31,8 @@ function requestBingoCard(){
         })
         pokemonList.push(pokemon);
     })
+
+    pokemonList.pop()   // Mass changer buttons are also added, resulting in one pokemon too much
 
     for(let i = 0; i < pokemonList.length; i++){
         pokemonList[i] = pokemonList[i].paramToArray();

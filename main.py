@@ -83,6 +83,7 @@ def formatBingoCard(pokemonList, width = 5, height = 5):
 
     # Every pokemonList[i] is an array of strings, formatted like [dexNo, game, isShiny (normal or shiny), isCompleted (incompleted or completed)]
     for i in range(len(pokemonList)):
+        wasRandomPokemon = (pokemonList[i][0] == "random")
         for j in range(len(pokemonList[i])):
             if(pokemonList[i][j] != "random"):
                 continue
@@ -94,12 +95,22 @@ def formatBingoCard(pokemonList, width = 5, height = 5):
             pokemonList[i][2] = "incompleted"
             continue
 
+        if(not wasRandomPokemon):   # A Pokemon chosen by user should not be randomized, so game is randomized
+            counter = 0
+            while(int(pokemonList[i][0]) > pokemonMaxDict[pokemonList[i][1]]):
+                pokemonList[i][1] = randomizeVariable(1)
+                counter += 1
+                if(counter > 127):
+                    raise RecursionError("can't find a game with the pokemon in it (tried {} times)".format(counter))
+            continue
+
+        # If game has no sprite for pokemon, choose different pokemon 
         counter = 0
-        while(int(pokemonList[i][0]) > pokemonMaxDict[pokemonList[i][1]] or getFirstOccurrence(pokemonList, pokemonList[i][0]) != i):     # If game has no sprite for pokemon, choose different pokemon (typecast because bug)
+        while(int(pokemonList[i][0]) > pokemonMaxDict[pokemonList[i][1]] or getFirstOccurrence(pokemonList, pokemonList[i][0]) != i):       # (typecast to int fixes bug)
             pokemonList[i][0] = randomizeVariable(0)
             counter += 1
             if(counter > 127):
-                raise RecursionError("can't find a game with the pokemon in it (tried {} times)".format(counter))
+                raise RecursionError("can't find a pokemon in the chosen game (tried {} times)".format(counter))
     
     return generateBingoCard(pokemonList, width, height)
 
