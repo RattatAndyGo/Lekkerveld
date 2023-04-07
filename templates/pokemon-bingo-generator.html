@@ -32,7 +32,11 @@
                     {% include 'includes/bingo-options.html' %}
                 </div>
             </div>
-            <button id="generate" onclick="requestBingoCard()">Generate!</button>
+            <div id="buttons">
+                <button id="save" onclick="saveBoard()">Save board</button>
+                <button id="generate" onclick="requestBingoCard()">Generate!</button>
+                <button id="load" onclick="loadBoard()">Load board</button>
+            </div>
 
             <div id="bingo-div"></div>
 
@@ -50,7 +54,10 @@
                 The randomizer checks for duplicate Pokemon*, but other forms are seen as other Pokemon. Shiny/non-shiny is considered the same Pokemon. Additionally, the randomizer will not choose different forms.<br>
                 To download the generated slideshow, use "right-click > save image as...". <br>
                 <br>
-                * The dupe check checks only up until that square, so if a later square has a chosen pokemon, it might take the same one there.
+                * The dupe check checks only up until that square, so if a later square has a chosen pokemon, it might take the same one there.<br>
+                <br>
+                You can use the "Save board" button to store the current options you have selected. At a later time, you can use the "Load board" option to immediately load those same options back in. This way you can make adjustments later, like adding a "completed" stamp to a Pokemon.<br>
+                The board is stored as a cookie in local storage, so make sure you have enabled cookies. If you delete your cookies, you will also delete your saved board. Additionally, the cookie expires after 365 days, but this can easily be reset by first loading and then saving the board, as this resets the cookie.
             </p>
 
             <hr>
@@ -62,7 +69,6 @@
                     <li>Allowing multiple images per square (e.g. more than one pokemon, or an icon indicating a particular method like eggs)</li>
                     <li>Custom bingo dimensions</li>
                     <li>Sharing bingo card with other users (which also serves as a library of pregenerated cards)</li>
-                    <li>Saving generated Bingo cards in local storage, to allow quick changes (like a "completed" stamp)</li>
                 </ul>
                 If you want a particular feature, let me know so I can make it a priority. You can also implement it yourself and make a pull request on Github.
             </p>

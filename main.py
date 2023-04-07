@@ -1,7 +1,9 @@
 from flask import *
 import os
-from random import randint, choice
+from random import randint
+import datetime
 from PIL import Image
+
 import pathlib
 
 app = Flask(__name__)
@@ -71,7 +73,7 @@ def generateBingoCard(pokemonList, width, height):
             cursor[1] += vertical_length
     
     # SAVE im IN FOLDER, RETURN PATH TO IMAGE
-    name = randint(0, 999999999)    # Generate random number to serve as file name
+    name = datetime.datetime.now().strftime("%m%d%H%M%S%f")         # Name is derived from current time, month-day-hour-minute-second-millisecond
     path = pathlib.Path("static/assets/images/bingo/bingo-cards/{}.jpeg".format(name))
     path.touch(exist_ok=True)
     im.save(path, "JPEG")
@@ -136,7 +138,7 @@ def randomizeVariable(i):
             return("completed" if randint(0, 1) == 1 else "incompleted")
         
 # Helper function to get the dex number of a Pokemon, in case it is an alternate form
-# See https://stackoverflow.com/a/36434101 for syntax
+# Source https://stackoverflow.com/a/36434101
 def getDexNo(pokemon):
     return int(''.join(filter(str.isdigit, str(pokemon[0]))))
         
