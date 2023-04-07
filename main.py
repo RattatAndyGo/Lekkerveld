@@ -97,7 +97,7 @@ def formatBingoCard(pokemonList, width = 5, height = 5):
 
         if(not wasRandomPokemon):   # A Pokemon chosen by user should not be randomized, so game is randomized
             counter = 0
-            while(int(pokemonList[i][0]) > pokemonMaxDict[pokemonList[i][1]]):
+            while(getDexNo(pokemonList[i]) > pokemonMaxDict[pokemonList[i][1]]):
                 pokemonList[i][1] = randomizeVariable(1)
                 counter += 1
                 if(counter > 127):
@@ -106,7 +106,7 @@ def formatBingoCard(pokemonList, width = 5, height = 5):
 
         # If game has no sprite for pokemon, choose different pokemon 
         counter = 0
-        while(int(pokemonList[i][0]) > pokemonMaxDict[pokemonList[i][1]] or getFirstOccurrence(pokemonList, pokemonList[i][0]) != i):       # (typecast to int fixes bug)
+        while(getDexNo(pokemonList[i]) > pokemonMaxDict[pokemonList[i][1]] or getFirstOccurrence(pokemonList, pokemonList[i][0]) != i):
             pokemonList[i][0] = randomizeVariable(0)
             counter += 1
             if(counter > 127):
@@ -134,6 +134,11 @@ def randomizeVariable(i):
             return("shiny" if randint(0, 1) == 1 else "normal")
         case 3: 
             return("completed" if randint(0, 1) == 1 else "incompleted")
+        
+# Helper function to get the dex number of a Pokemon, in case it is an alternate form
+# See https://stackoverflow.com/a/36434101 for syntax
+def getDexNo(pokemon):
+    return int(''.join(filter(str.isdigit, str(pokemon[0]))))
         
 
 
