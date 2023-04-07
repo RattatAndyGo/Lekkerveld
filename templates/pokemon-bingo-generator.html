@@ -5,7 +5,7 @@
     <script type="text/javascript" src="static/scripts/bingo.js"></script>
     <link rel="stylesheet" href="static/stylesheets/bingo.css"/>
 
-    <title>Bingo card generator</title>
+    <title>Pokemon bingo generator</title>
 </head>
 
 <body>
@@ -44,31 +44,34 @@
 
             <p>Use this bingo card generator to generate custom bingo cards for shiny hunting (or other challenges) in Pokemon.<br>
                 Each slot has 4 options:
+            </p>
                 <ul>
                     <li>Which Pokemon (or free slot) should be used?</li>
                     <li>From which game should the sprite come from?</li>
                     <li>Is the Pokemon shiny or not?</li>
                     <li>Is the Pokemon completed or not?</li>
                 </ul>
+            <p>
                 If a random game has no sprite for the chosen Pokemon, the game is rerolled. Similarly, if a Pokemon has no sprite in a chosen game, the Pokemon will be rerolled. If an incompatible Pokemon/game pair is inputted, the game is randomized.<br>
-                The randomizer checks for duplicate Pokemon*, but other forms are seen as other Pokemon. Shiny/non-shiny is considered the same Pokemon. Additionally, the randomizer will not choose different forms.<br>
+                The randomizer checks for duplicate Pokemon*, but other forms are seen as other Pokemon. Shiny/non-shiny is considered the same Pokemon. Additionally, the randomizer will always choose the base form (the first one).<br>
                 To download the generated slideshow, use "right-click > save image as...". <br>
                 <br>
                 * The dupe check checks only up until that square, so if a later square has a chosen pokemon, it might take the same one there.<br>
                 <br>
                 You can use the "Save board" button to store the current options you have selected. At a later time, you can use the "Load board" option to immediately load those same options back in. This way you can make adjustments later, like adding a "completed" stamp to a Pokemon.<br>
-                The board is stored as a cookie in local storage, so make sure you have enabled cookies. If you delete your cookies, you will also delete your saved board. Additionally, the cookie expires after 365 days, but this can easily be reset by first loading and then saving the board, as this resets the cookie.
+                The board is stored as a cookie in local storage, so make sure you have enabled cookies. If you delete your cookies, you will also delete your saved board. Additionally, the cookie expires after 365 days, but this can easily be reset by first loading and then saving the board, as this resets the cookie.<br>
+                <br>
+                All generated bingo cards are stored and can be accessed via <a href="/bingo-library">this page</a>. I might occasionally delete some (depending on how many are made), and I cannot guarantee I won't accidentally lose them, so don't use it to store your bingo card. If you don't want your bingo card in this gallery, you can download the source code on Github and run it yourself.
             </p>
 
             <hr>
 
             <p>Planned future features:
                 <ul>
-                    <li>Gen 6-9</li>
+                    <li>Gen 6-9 (I couldn't find a library of images from these games, so I made this page with just gen 1-5 for the moment)</li>
                     <li>Allowing uploading custom images</li>
                     <li>Allowing multiple images per square (e.g. more than one pokemon, or an icon indicating a particular method like eggs)</li>
                     <li>Custom bingo dimensions</li>
-                    <li>Sharing bingo card with other users (which also serves as a library of pregenerated cards)</li>
                 </ul>
                 If you want a particular feature, let me know so I can make it a priority. You can also implement it yourself and make a pull request on Github.
             </p>

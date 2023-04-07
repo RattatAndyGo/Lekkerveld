@@ -3,29 +3,12 @@ import os
 from random import randint
 import datetime
 from PIL import Image
-
 import pathlib
 
-app = Flask(__name__)
 
-# APP ROUTES
-
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'assets/favicon.ico', mimetype='image/vnd.microsoft.icon')
-
-@app.route('/')
-def home():
-    return redirect("/home")
-
-@app.route('/<page>')
-def page(page):
-    return render_template("{}.html".format(page))
-
-@app.route('/bingo', methods=['POST'])
-def bingoPost():
-    return formatBingoCard(json.loads(request.form.get('pokemon')))
-
+# ╔╗ ╔═╗╔═╗╦╔═╔═╗╔╗╔═╦╗  ╔═╗╔═╗═╦╗╔═╗
+# ╠╩╗╠═╣║  ╠╩╗║╣ ║║║ ║║  ║  ║ ║ ║║║╣ 
+# ╚═╝╩ ╩╚═╝╩ ╩╚═╝╝╚╝═╩╝  ╚═╝╚═╝═╩╝╚═╝
 # BACKEND CODE
 
 # BINGO CARD GENERATOR
@@ -141,8 +124,63 @@ def randomizeVariable(i):
 # Source https://stackoverflow.com/a/36434101
 def getDexNo(pokemon):
     return int(''.join(filter(str.isdigit, str(pokemon[0]))))
-        
 
+def getAllBingoCards():
+    cards = []
+    dir = "static/assets/images/bingo/bingo-cards"
+    for file in os.listdir(dir):
+        f = os.path.join(dir, file)
+        # checking if it is a file
+        if os.path.isfile(f):
+            cards.append(f)
+    return cards
+
+app = Flask(__name__)
+
+
+
+
+
+
+
+
+# ╔═╗╔═╗╔═╗  ╦═╗╔═╗╦ ╦╔╦╗╔═╗╔═╗
+# ╠═╣╠═╝╠═╝  ╠╦╝║ ║║ ║ ║ ║╣ ╚═╗
+# ╩ ╩╩  ╩    ╩╚═╚═╝╚═╝ ╩ ╚═╝╚═╝
+# APP ROUTES
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'assets/favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/')
+def home():
+    return redirect("/home")
+
+@app.route('/<page>')
+def page(page):
+    return render_template("{}.html".format(page))
+
+counter = 0
+lastPostRequest = datetime.datetime.now()
+@app.route('/bingo', methods=['POST'])
+def bingoPost():
+    global counter, lastPostRequest
+    time = datetime.datetime.now()
+    elapsedTime = time - lastPostRequest
+    lastPostRequest = time
+    if(elapsedTime.days * 24*60*60 + elapsedTime.seconds > 30):     # Waiting 30+ seconds resets counter
+        counter = 0
+    elif(counter < 10):                                             # If <10 requests were made, continue and increment counter
+        counter += 1
+    else:
+        return("requestOverload")   # Gets caught, frontend shows an overload message
+    return formatBingoCard(json.loads(request.form.get('pokemon')))
+
+
+@app.route('/bingo-library')
+def library():
+    return render_template("bingo-library.html", images=getAllBingoCards())
 
 # START UP WEBSITE
 app.run(host="0.0.0.0", port=5000)

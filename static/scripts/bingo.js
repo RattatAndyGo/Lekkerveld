@@ -49,6 +49,11 @@ function generateBingoCard(pokemonList){
         if(xmlHttp.readyState == 4){
             if(xmlHttp.status == 200){
                 path = xmlHttp.responseText;
+                if(path == "requestOverload"){
+                    document.getElementById("bingo-div").replaceChildren("You generated too many bingo cards too quickly (max. is 10). Waiting 30 seconds between requests resets this counter.");
+                    return;
+                }
+
                 const img = new Image(); 
                 img.src = path;
                 document.getElementById("bingo-div").replaceChildren(img);

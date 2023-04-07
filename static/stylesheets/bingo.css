@@ -39,3 +39,7 @@ button{
     height: fit-content;
     margin: 0.5rem 1rem;
 }
+
+.bingo-image{
+    width: 19%;     /* 19% and not 20% because 20% makes fifth card overflow to next row */
+}
