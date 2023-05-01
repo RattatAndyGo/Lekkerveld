@@ -4,6 +4,7 @@ from random import randint
 import datetime
 from PIL import Image
 import pathlib
+import random
 
 
 # ╔╗ ╔═╗╔═╗╦╔═╔═╗╔╗╔═╦╗  ╔═╗╔═╗═╦╗╔═╗
@@ -161,26 +162,23 @@ def home():
 def page(page):
     return render_template("{}.html".format(page))
 
-counter = 0
-lastPostRequest = datetime.datetime.now()
 @app.route('/bingo', methods=['POST'])
 def bingoPost():
-    global counter, lastPostRequest
-    time = datetime.datetime.now()
-    elapsedTime = time - lastPostRequest
-    lastPostRequest = time
-    if(elapsedTime.days * 24*60*60 + elapsedTime.seconds > 30):     # Waiting 30+ seconds resets counter
-        counter = 0
-    elif(counter < 10):                                             # If <10 requests were made, continue and increment counter
-        counter += 1
-    else:
-        return("requestOverload")   # Gets caught, frontend shows an overload message
     return formatBingoCard(json.loads(request.form.get('pokemon')))
+
+    # return("requestOverload")
+    # To be used when implementing some kind of max request speed, requestOverload is caught in js and error message is displayed
 
 
 @app.route('/bingo-library')
 def library():
     return render_template("bingo-library.html", images=getAllBingoCards())
+
+@app.route('/get-random-image')
+def randomImg():
+    dir = os.path.join(os.getcwd(), "static/assets/images/reactions/A N G E R Y/")
+    image = dir + random.choice(os.listdir(dir))
+    return send_file(image)
 
 # START UP WEBSITE
 app.run(host="0.0.0.0", port=5000)
