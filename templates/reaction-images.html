@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     {% include 'includes/head.html' %}
+    <script type="text/javascript" src="static/scripts/reaction-images.js"></script>
+    <link rel="stylesheet" href="static/stylesheets/reaction-images.css"/>
 
     <title>Reaction images | Lekkerveld</title>
 </head>
@@ -13,20 +15,30 @@
         <div id="page-content">
             <h1>Reaction images</h1>
 
-            <div id="frontend-random-images">
-                TODO IMPLEMENT IMAGE GETTER FROM URL
+            <div id="frontend-random-images"></div>
+            <div id="buttons">
+                <button onclick="rerollImage()">Get a new image</button>
+                <select id="imgtype" name="imgtype">
+                    <option name="A N G E R Y">A N G E R Y</option>
+                    <option name="bait">bait</option>
+                    <option name="crusader memes">crusader memes</option>
+                    <option name="F">F</option>
+                    <option name="sad">sad</option>
+                    <option name="thinking">thinking</option>
+                    <option name="wtf">wtf</option>
+                </select>
             </div>
 
             <hr>
             
             <p>
                 This page is not meant to be frequently visited, but rather serves as a tutorial to use this feature. The frontend above to get random images is purely for asthetics and experimenting.<br>
-                The idea is to have a keyboard shortcut that, when pressed, automatically loads a random image of a particular theme into your clipboard. You can then immediately use ctrl + v to paste the image anywhere. Currently, only angry emoji themed images are accessible.<br>
-                The process behind this is relatively simple: When the shortcut is pressed, a shell script is activated, which retrieves the image from <a href="/get-random-image" target="_blank">www.lekkerveld.be/get-random-image</a> and places it in your clipboard. To implement this on your own device, follow the instructions below.
+                The idea is to have a keyboard shortcut that, when pressed, automatically loads a random image of a particular theme into your clipboard, to be pasted anywhere.<br>
+                The process behind this is relatively simple: When the shortcut is pressed, a script is activated, which retrieves the image from <a href="/get-random-image" target="_blank">www.lekkerveld.be/get-random-image</a> and places it in your clipboard. To implement this on your own device, follow the instructions below.
             </p>
 
             <h3>Windows</h3>
-            <p>Windows kinda sucks, as it doesn't easily run shell scripts like Linux does. Additionally, it doesn't use bash, which the shell script would use. I am in the process of figuring out how to implement this on Windows, but at the moment this isn't possible.</p>
+            <p>Windows kinda sucks, as it works differently. </p>
 
             <h3>MacOS</h3>
             <p>Never used it, but should work similar to Linux. Will test this on a friend's macbook somewhat soon, and then update this part of the tutorial.</p>
@@ -34,28 +46,23 @@
             <h3>Linux</h3>
             <ol>
                 <li>install xclip<br>
-                    This should be already installed, which can be checked by typing "which xclip" in a terminal. If the output is similar to "/usr/bin/xclip", it is installed, else go ahead and install it (see the internet for guides)
+                    This should be already installed. Use "which xclip" in a terminal to check (if the output is similar to "/usr/bin/xclip", it is installed).
                 </li>
                 <li>set up the shell script<br>
-                    Make a file named shellscript.sh (any name is fine, just have it end in .sh) and add the following as content:<br>
+                    Make a file named shellscript.sh (any name is fine, just have it end in .sh) and add the following as content (replace bait with whatever category you want to use):<br>
                     <i>#!/bin/bash<br>
-                        curl https://www.lekkerveld.be/get-random-image | xclip -selection clipboard -target image/png -i</i><br>
-                    Make sure you know where you save this file.
+                        curl https://www.lekkerveld.be/get-random-image?\&imgtype=bait | xclip -selection clipboard -target image/png -i</i><br>
+                    Make sure you know where you save this file. If you want to always get the same image, use the path to that image instead of /get-random-image&imgtype=bait (e.g. https://www.lekkerveld.be/static/assets/images/reactions/bait/bait.jpg)
                 </li>
                 <li>add the keyboard shortcut<br>
-                    This is different for every Linux distro, but it should be similar to Settings > keyboard > keyboard shortcuts > custom shortcuts. Create a new shortcut, and give it any name and key combination. The command should be "sh /home/username/path/to/script/shellscript.sh", with username being swapped with your own username, path/to/script being the path to the script, and shellscript.sh should be the actual name you gave the script.
-                </li>
-                <li>test it
-                    Everything should be configured now. Use the shortcut and try to paste the image somewhere (I suggest testing it wherever you are planning on using this for, I chose Discord for this very reason). If something doesn't work, you can always manually run the shell script in a terminal and inspect the error message to try and solve any issues.
+                    This is different for every Linux distro, but it should be similar to Settings > keyboard > keyboard shortcuts > custom shortcuts. Create a new shortcut for "sh /home/username/path/to/script/shellscript.sh", with the path being the path to the script.<br>
+                    <i>Note: this path has to be absolute, so can't use ~/ like normal. Instead, use /home/username/, followed by the rest of the path.</i>
                 </li>
             </ol>
 
             <hr>
             TODO:
             <ul>
-                <li>add frontend image getter</li>
-                <li>add option for other image types</li>
-                <li>update tutorial to reflect other image types</li>
                 <li>update tutorial to work for Windows</li>
                 <li>update tutorial to work for MacOS</li>
             </ul>

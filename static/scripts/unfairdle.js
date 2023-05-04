@@ -1,19 +1,18 @@
-// TODO draw functions using "new DOMelement('td')" instead of strings (Also in c4 code)
-
-let wordList;
-let answerList;
+let wordList;                       // List of all possible guesses
+let answerList;                     // List of all possible answers
 let rows = 6;                       // Minimum amount of displayed rows
 let columns = 5;                    // Amount of letters in a word
 let currentGuess = "";              // Current guess, possibly not fully typed yet
 let answer = "blank";               // Answer of the puzzle
 let guessedWords = [];              // Array of guessed words
 let possibleAnswers;                // List of all answers still possible given the current known information
+let timer;                          // Making the timer interval global to turn it off
 
-let gray = "rgb(51, 51, 51)";
-let yellow = "rgb(204, 204, 0)";
-let green = "rgb(0, 255, 0)";
+const gray = "rgb(51, 51, 51)";
+const yellow = "rgb(204, 204, 0)";
+const green = "rgb(0, 255, 0)";
 
-let total_seconds = 0;
+let total_seconds = 0;              // Total time elapsed in seconds
 
 // Runs every time a key is pressed, and does something depending on the key in question
 const processKeystroke = (e) => {
@@ -27,7 +26,7 @@ const processKeystroke = (e) => {
 
 window.onload = function(){
     // Start the timer
-    const timer = setInterval(update_timer(), 1000);
+    const timer = setInterval(update_timer, 1000);
     
     // Keyboard listener to detect keystrokes
     document.addEventListener("keydown", processKeystroke);
@@ -297,6 +296,7 @@ function copyEmojiResult() {
 // Source: based on https://stackoverflow.com/questions/5517597/plain-count-up-timer-in-javascript
 function update_timer(){
     if(guessedWords[guessedWords.length - 1] == answer) clearInterval(timer);
+    
 
     let minutes = add_leading_zero(Math.floor(total_seconds/60));
     let seconds = add_leading_zero(total_seconds % 60);
@@ -304,7 +304,6 @@ function update_timer(){
 
     document.getElementById("timer").innerHTML = time;
     total_seconds++;
-
 }
 
 function add_leading_zero(number){

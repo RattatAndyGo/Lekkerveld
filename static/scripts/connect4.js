@@ -39,7 +39,7 @@ function create_empty_board(){
     for(let i = 0; i < amount_of_rows; i++){
         let row = []
         for(let j = 0; j < amount_of_columns; j++){
-            row[j] = 0;
+            row.push(0);
         }
         board[i] = row;
     }
@@ -134,55 +134,52 @@ window.onload = function(){
 }
 
 function draw(){
-    // Create HTML
-    let field_html = '';
-    for(let i = 0; i < amount_of_rows; i++){
-        field_html += get_row_html(i);
-    }
-    document.getElementById("game_table").innerHTML = field_html;
+    let table = document.createElement("table");
 
+    for(let i = 0; i < amount_of_rows; i++){
+        table.appendChild(create_row(i));
+    }
+
+    document.getElementById("game-field").replaceChildren(table);
+}
+
+function create_row(index){
+    let row = document.createElement("tr");
+    for(let j = 0; j < amount_of_columns; j++){
+        row.appendChild(create_cell(index, j));
+    }
+    return row;
+}
+
+function create_cell(row, column){
     let cellWidth = Math.max(pageWidth / amount_of_columns, 20);
     let thickness = Math.min(10, (cellWidth) / 5);
-    for(let i = 0; i < amount_of_rows; i++){
-        for(let j = 0; j < amount_of_columns; j++){
-            let cell = document.getElementById('game_table').rows[i].cells[j];
-            let style = `width: ${cellWidth}px; height: ${cellWidth}px; border-radius: ${cellWidth/2}px; background-color: ${colors[game_state[i][j]]};`;
-            if(cell.classList.contains('inputable')) style += `border: ${thickness}px solid #008000;`;
-            if(cell.classList.contains('popoutable')) style += `border: ${thickness}px solid #00ffff;`;
-            cell.style = style;
-        }
-    }
-}
 
-function get_row_html(index){
-    let row_html = "<tr>";
-    for(let j = 0; j < amount_of_columns; j++){
-        row_html += get_cell_html(index, j);
-    }
-    row_html += "</tr>";
-    return row_html;
-}
-
-function get_cell_html(row, column){
-    let cell_html = "<td";
+    let cell = document.createElement("td");
 
     let move = get_first_empty_slot(column);
     if((move == row || !gravity && game_state[row][column] == 0) && !has_finished){     // Able to place a coin here
-        cell_html += ` class="inputable" onclick="add_coin(${row}, ${column})"`;
+        cell.classList.add("inputable");
+        cell.onclick = function(){add_coin(row, column);};
+        cell.style.setProperty("border", `${thickness}px solid #008000`)
     }
     if(popout && !has_finished && game_state[row][column] != 0 && (popoutEnemies || game_state[row][column] == current_player) && (!bottomOnly || row == amount_of_rows-1)){
-        cell_html += ` class="popoutable" onclick="popoutCoin(${row}, ${column})"`;
+        cell.classList.add("popoutable");
+        cell.onclick = function(){popoutCoin(row, column);}
+        cell.style.setProperty("border", `${thickness}px solid #00ffff`)
     }
-
-    cell_html += ">";
 
     let index = portals[row][column];
     if(index != 0){
-        cell_html += `<p>${index}</p>`;
+        cell.innerHTML = `<p>${index}</p>`;
     }
 
-    cell_html += "</td>";
-    return cell_html;
+    cell.style.setProperty("width", `${cellWidth}px`);
+    cell.style.setProperty("height", `${cellWidth}px`);
+    cell.style.setProperty("border-radius", `${cellWidth/2}px`);
+    cell.style.setProperty("background-color", `${colors[game_state[row][column]]}`);
+
+    return cell;
 }
 
 // Returns the index of the row where the next coin should go.
@@ -305,7 +302,7 @@ function countOneWay(row, column, row_increment, column_increment, player, visit
         row += row_increment;
         column += column_increment;
 
-        if(!in_board()){
+        if(!in_board(row, column)){
             if(torus){
                 row = mod(row, amount_of_rows);
                 column = mod(column, amount_of_columns);
@@ -329,10 +326,12 @@ function countOneWay(row, column, row_increment, column_increment, player, visit
             break;
         }
     }
+    console.log(`count was ${count}`);
     return count;
 }
 
 function in_board(row, column){
+    console.log(row >= 0 && column >= 0 && row < amount_of_rows && column < amount_of_columns);
     return(row >= 0 && column >= 0 && row < amount_of_rows && column < amount_of_columns);
 }
 

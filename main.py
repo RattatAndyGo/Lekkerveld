@@ -176,7 +176,8 @@ def library():
 
 @app.route('/get-random-image')
 def randomImg():
-    dir = os.path.join(os.getcwd(), "static/assets/images/reactions/A N G E R Y/")
+    imgtype = request.args.get("imgtype")
+    dir = os.path.join(os.getcwd(), "static/assets/images/reactions/{}/".format(imgtype))
     image = dir + random.choice(os.listdir(dir))
     return send_file(image)
 

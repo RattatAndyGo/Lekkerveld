@@ -1,0 +1,1 @@
+// If a script is needed on all pages, it should be coded here

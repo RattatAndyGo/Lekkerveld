@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     {% include 'includes/head.html' %}
-    <script type="text/javascript" src="static/scripts/wordle.js"></script>
-    <link rel="stylesheet" href="static/stylesheets/wordle.css"/>
+    <script type="text/javascript" src="static/scripts/unfairdle.js"></script>
+    <link rel="stylesheet" href="static/stylesheets/unfairdle.css"/>
 
     <title>Unfairdle | Lekkerveld</title>
 </head>
@@ -14,60 +14,62 @@
     <div id="page-container"> 
         <div id="page-content">
 
-            <div id="notifications" style="display: none"></div>
+            <div class="centered-div">
+                <div id="notifications" style="display: none"></div>
 
-            <h1>Unfairdle</h1>
+                <h1>Unfairdle</h1>
 
-            <div class="horizontal-container">
-                <div class="horizontal">
-                    <button id="reset" onclick="reset()">Reset game</button>
+                <div class="horizontal-container">
+                    <div class="horizontal">
+                        <button id="reset" onclick="reset()">Reset game</button>
+                    </div>
+                    <div class="horizontal">
+                        <div id="timer">00:00</div>
+                    </div>
                 </div>
-                <div class="horizontal">
-                    <div id="timer">00:00</div>
+
+                <div id="game_field">
+                    <table id="game_table"></table>
                 </div>
+
+                <div id="keyboard">
+                    <div class="first-row">
+                        <button class="key" id="q">Q</button>
+                        <button class="key" id="w">W</button>
+                        <button class="key" id="e">E</button>
+                        <button class="key" id="r">R</button>
+                        <button class="key" id="t">T</button>
+                        <button class="key" id="y">Y</button>
+                        <button class="key" id="u">U</button>
+                        <button class="key" id="i">I</button>
+                        <button class="key" id="o">O</button>
+                        <button class="key" id="p">P</button>
+                    </div>
+                    <div class="second-row">
+                        <button class="key" id="a">A</button>
+                        <button class="key" id="s">S</button>
+                        <button class="key" id="d">D</button>
+                        <button class="key" id="f">F</button>
+                        <button class="key" id="g">G</button>
+                        <button class="key" id="h">H</button>
+                        <button class="key" id="j">J</button>
+                        <button class="key" id="k">K</button>
+                        <button class="key" id="l">L</button>
+                    </div>
+                    <div class="third-row">
+                        <button class="key" id="Backspace">BACKSPACE</button>
+                        <button class="key" id="z">Z</button>
+                        <button class="key" id="x">X</button>
+                        <button class="key" id="c">C</button>
+                        <button class="key" id="v">V</button>
+                        <button class="key" id="b">B</button>
+                        <button class="key" id="n">N</button>
+                        <button class="key" id="m">M</button>
+                        <button class="key" id="Enter">ENTER</button>
+                    </div>
+                </div>
+                <hr>
             </div>
-
-            <div id="game_field">
-                <table id="game_table"></table>
-            </div>
-
-            <div id="keyboard">
-                <div class="first-row">
-                    <button class="key" id="q">Q</button>
-                    <button class="key" id="w">W</button>
-                    <button class="key" id="e">E</button>
-                    <button class="key" id="r">R</button>
-                    <button class="key" id="t">T</button>
-                    <button class="key" id="y">Y</button>
-                    <button class="key" id="u">U</button>
-                    <button class="key" id="i">I</button>
-                    <button class="key" id="o">O</button>
-                    <button class="key" id="p">P</button>
-                </div>
-                <div class="second-row">
-                    <button class="key" id="a">A</button>
-                    <button class="key" id="s">S</button>
-                    <button class="key" id="d">D</button>
-                    <button class="key" id="f">F</button>
-                    <button class="key" id="g">G</button>
-                    <button class="key" id="h">H</button>
-                    <button class="key" id="j">J</button>
-                    <button class="key" id="k">K</button>
-                    <button class="key" id="l">L</button>
-                </div>
-                <div class="third-row">
-                    <button class="key" id="Backspace">BACKSPACE</button>
-                    <button class="key" id="z">Z</button>
-                    <button class="key" id="x">X</button>
-                    <button class="key" id="c">C</button>
-                    <button class="key" id="v">V</button>
-                    <button class="key" id="b">B</button>
-                    <button class="key" id="n">N</button>
-                    <button class="key" id="m">M</button>
-                    <button class="key" id="Enter">ENTER</button>
-                </div>
-            </div>
-            <hr>
 
             <div id="rules">
                 <h4>The concept</h4>
