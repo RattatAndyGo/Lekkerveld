@@ -1,7 +1,7 @@
 // Counts the requests done via the frontend interface, and passes it as a parameter to the backend.
 // Backend ignores this, but it prevents browsers caching the response and giving back the same image every time
 let increment = 0
-let imgtype = "A N G E R Y"
+let imgtype = "ANGERY"
 
 function rerollImage(){
     div = document.getElementById("frontend-random-images");
