@@ -43,7 +43,7 @@ function requestBingoCard(){
 function generateBingoCard(pokemonList){
     // Create Post Request
     let xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("POST", "/bingo");
+    xmlHttp.open("POST", "/bingo-generate");
 
     xmlHttp.onreadystatechange = function() {
         if(xmlHttp.readyState == 4){
@@ -70,6 +70,58 @@ function generateBingoCard(pokemonList){
     xmlHttp.send(fd);
 }
 
+// Given an uploaded card, changes the input board to reflect the card
+function cardToInput(){
+    // Create Post Request
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("POST", "/bingo-card-to-input");
+
+    xmlHttp.onreadystatechange = function() {
+        if(xmlHttp.readyState == 4){
+            if(xmlHttp.status == 200){
+                listToBoard(xmlHttp.responseText);
+            }else{
+                console.log("error: ", xmlHttp);
+            }
+        }
+    }
+
+    // Initialize Formdata
+    let card = document.getElementById("card-to-input")
+    let fd = new FormData();
+    fd.append(card.getAttribute("name"), card.files[0], card.files[0].name);
+
+    xmlHttp.send(fd);
+}
+
+// Given a path to a card, changes the input board to reflect the card
+function pathToInput(path = null){
+    // Create Post Request
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("POST", "/bingo-path-to-input");
+
+    xmlHttp.onreadystatechange = function() {
+        if(xmlHttp.readyState == 4){
+            if(xmlHttp.status == 200){
+                listToBoard(xmlHttp.responseText);
+            }else{
+                console.log("error: ", xmlHttp);
+            }
+        }
+    }
+
+    // if no path is supplied, use the generated one 
+    if(path == null){
+        path = document.getElementById("bingo-div").childNodes[0].getAttribute("src");
+    }
+
+    // Initialize Formdata
+    let fd = new FormData();
+    fd.append("path", JSON.stringify(path));
+
+    xmlHttp.send(fd);
+}
+
 // Generates a string based on the current board, which has all select values in order separated by spaces
 function boardToString(){
     let str = "";
@@ -83,6 +135,7 @@ function boardToString(){
 function stringToBoard(str){
     board = document.querySelectorAll("select");
     let data = str.split(" ");
+    console.log(data)
     let counter = 0;
 
     // input checks
@@ -94,6 +147,15 @@ function stringToBoard(str){
         e.value = data[counter];
         counter++;
     });
+}
+
+// Takes a list as argument and changes the board to reflect the contents of the list
+function listToBoard(list){
+    list = list.replace(/[\[\]"]/g, "")
+    list = list.replace(/,/g, " ")
+    list = list.replace("\n", "")       // At very end a \n appears, no clue where from so I just filter it here
+    list += " random random normal incompleted"
+    stringToBoard(list);
 }
 
 // Stores current state of the board, to later restore using loadBoard() (board is deleted after 1 year)

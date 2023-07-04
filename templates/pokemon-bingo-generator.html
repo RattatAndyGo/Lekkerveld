@@ -36,6 +36,7 @@
                 <button id="save" onclick="saveBoard()">Save board</button>
                 <button id="generate" onclick="requestBingoCard()">Generate!</button>
                 <button id="load" onclick="loadBoard()">Load board</button>
+                <button id="reverse-engineer" onclick="pathToInput()">Reverse engineer card</button>
             </div>
 
             <div id="bingo-div"></div>
@@ -66,6 +67,16 @@
 
             <hr>
 
+            <p>Upload a bingo card you previously generated to change the settings above to reflect this card.<br>
+                Note that this isn't perfect, occasionally a pokemon will not be detected. If there is a "completed" stamp on a pokemon, it will also not be detected. In either case, a free space will be used.<br>
+                This can take a bit over a minute to process.
+
+                <input type="file" id="card-to-input" name="card" accept=".png">
+                <button onclick="cardToInput()">Submit</button>
+            </p>
+
+            <hr>
+
             <p>Planned future features:
                 <ul>
                     <li>Gen 6-9 (I couldn't find a library of images from these games, so I made this page with just gen 1-5 for the moment)</li>
@@ -75,6 +86,45 @@
                 </ul>
                 If you want a particular feature, let me know so I can make it a priority. You can also implement it yourself and make a pull request on Github.
             </p>
+
+            <!-- TODO
+                IF NO ID TOKEN PRESENT, GIVE POP UP ASKING IF ID TOKEN CAN BE GENERATED + INFO ABOUT WHY
+                TOKEN IS FULLY RANDOM (CHECK DUPES ANYWAY), ASK FOR NICKNAME (CHECK DUPES) FOR CARD SHARING FEATURE
+                (ASSUMING CONSENT) ADD ID TOKEN, LOAD IN BINGO CARD PAGE
+                BINGO CARD GENERATOR LIKE NORMAL
+                SAVE BINGO CARD STORES THE PATH TO THAT CARD AND LINKS IT TO THEIR ID, AND PREVENTS IT FROM BEING DELETED
+                ALLOW ARBITRARY AMOUNT OF SAVES, CHOOSE WHICH ONE TO LOAD IN (INTERFACE?)
+                WHEN NEW CARD IS GENERATED AND LAST CARD ISN'T SAVED, DELETE LAST CARD (ALTERNATIVE, CHECK IN INTERVALS TO DELETE. IF PATHS ARE LINKED TO CREATOR, SIMPLY CHECK IF THEY ARE SAVED OR NOT AND IF NOT DELETE)
+                WHEN LOADING OLD BOARD STATE, LOAD IN IMAGE FROM SAVED PATH
+                INPUT BUTTONS ARE THEN UPDATED BASED ON WHAT'S IN THE IMAGE
+                FEATURE TO UPDATE INPUT BUTTONS BY UPLOADING AN IMAGE
+
+                ON SECOND PAGE, TRACK SHINY HUNTS
+                OPTION TO CREATE NEW HUNT, WITH/WITHOUT CERTAIN INFO (POKEMON (REQUIRED), GAME, METHOD, DATE STARTED (GENERATED AUTOMATICALLY), ENCOUNTER COUNT (DEFAULT: 0)...)
+                ALL PARAMETERS STORED IN BACKEND, EVERY 5 MINUTES AUTOSAVE + BUTTON TO MANUALLY SAVE
+                WHEN PAGE LOADS, FETCH ALL HUNTS AND DISPLAY THEM
+                + AND - BUTTON FOR EACH HUNT TO INCREMENT COUNTER
+                FINISHED BUTTON (ALLOW UNFINISH IN CASE OF MISCLICK)
+                FINISHED HUNTS ARE MOVED IN A TABLE AT BOTTOM OF PAGE, TO CONDENSE THE INFO
+                TRACK STATS WHILE HUNTING (MAX ENC PER DAY, CURRENT AVERAGE PER DAY, CHANCE TO GET A SHINY IN THAT MANY ENCOUNTERS, AVERAGE SESSION TIME (?)...)
+                WHEN FINISHING HUNT, ALLOW USER TO AUTOMATICALLY UPDATE BINGO CARD (POP UP TO ASK) (FETCH CARD, SEARCH FOR POKEMON IN QUESTION, ADD COMPLETED AND ENCOUNTER COUNT)
+
+                COOKIES ONLY USED TO ID USERS, ALL INFO IS KEPT IN BACKEND
+                NO FURTHER ID CHECK, SO CHANGING COOKIE TO OTHER ID IS ENOUGH TO GET ACCESS TO THEIR BINGO CARDS (ID TOKEN IS NEVER SHOWN, AND ANY SORT OF INTERCEPT ATTACK IS TOO MUCH EFFORT, AS THEY ARE BINGO CARDS NOT BANK CARDS)
+                REPLACE BINGO CARD LIBRARY WITH LOOKUP TAB, WHERE BY ENTERING SOMEONE'S NICKNAME THEY CAN SEE THAT PERSON'S HUNTS AND BINGO CARDS (READ-ONLY, NO WRITING!!)
+                OPTION TO MAKE HUNTS PUBLIC, SO PEOPLE CAN VIEW WITHOUT KNOWING NAME IN ADVANCE (RANDOM? LIST OF NAMES? MOST RECENT UPDATES AT THE TOP?), PRIVATE (ONLY VIA LOOKUP W/ NAME) OR HIDDEN (NOT VISIBLE TO ANYONE ELSE)
+
+                ALL INFO SHOULD BE KEPT IN A PROPER DATABASE, WITH BACKUPS
+                PREVENT SQL INJECTION, OR REQUESTS TO DATA THAT SHOULDN'T BE PUBLIC (LIKE SELECT id FROM Table WHERE name = "Andy", THIS WOULD GIVE PEOPLE IDS OF OTHERS, AND THUS FULL ACCESS)
+                PREVENT OVERLOAD FROM SPAM SAVING/REQUESTS (HOW?)
+
+                THIS WORKS CROSS DEVICE, SO LONG AS THE DEVICES HAVE THE SAME PAIR OF ID/NAME TOKENS (ADD TUTORIAL TO COPY COOKIES, INTERFACE OPTION?)
+                CHECK WHAT HAPPENS WHEN OTHER DEVICE HAS SAME ID BUT DIFFERENT NAME (OR VICE VERSA), CHECKING WITH EVERY REQUEST TOO EXPENSIVE/SLOW
+
+                ALTERNATIVE TO COOKIES: FLASK SESSION STORAGE?? GOOGLE
+            -->
+
+            <!-- STUDY RELATED MEMES, BUSSY BUSINESS, SEARCH FOR "req.session.loggedin" -->
 
             {% include 'includes/footer.html' %}
         </div>
