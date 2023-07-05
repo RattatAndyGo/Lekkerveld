@@ -36,7 +36,7 @@
                 <button id="save" onclick="saveBoard()">Save board</button>
                 <button id="generate" onclick="requestBingoCard()">Generate!</button>
                 <button id="load" onclick="loadBoard()">Load board</button>
-                <button id="reverse-engineer" onclick="pathToInput()">Reverse engineer card</button>
+                <button id="reverse-engineer" class="reverse-engineer-button" onclick="pathToInput()">Reverse engineer card</button>
             </div>
 
             <div id="bingo-div"></div>
@@ -62,6 +62,8 @@
                 You can use the "Save board" button to store the current options you have selected. At a later time, you can use the "Load board" option to immediately load those same options back in. This way you can make adjustments later, like adding a "completed" stamp to a Pokemon.<br>
                 The board is stored as a cookie in local storage, so make sure you have enabled cookies. If you delete your cookies, you will also delete your saved board. Additionally, the cookie expires after 365 days, but this can easily be reset by first loading and then saving the board, as this resets the cookie.<br>
                 <br>
+                When generating a card with random Pokemon, you can use the "Reverse engineer card" button to check what Pokemon you generated and change the input board to reflect this. Alternatively, you can upload a previously generated board below to change the inputs to the Pokemon on that card. This can take a bit over a minute.<br>
+                <br>
                 All generated bingo cards are stored and can be accessed via <a href="/bingo-library">this page</a>. I might occasionally delete some (depending on how many are made), and I cannot guarantee I won't accidentally lose them, so don't use it to store your bingo card. If you don't want your bingo card in this gallery, you can download the source code on Github and run it yourself.
             </p>
 
@@ -72,7 +74,7 @@
                 This can take a bit over a minute to process.
 
                 <input type="file" id="card-to-input" name="card" accept=".png">
-                <button onclick="cardToInput()">Submit</button>
+                <button onclick="cardToInput()" class="reverse-engineer-button">Reverse engineer card</button>
             </p>
 
             <hr>

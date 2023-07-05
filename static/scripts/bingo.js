@@ -72,6 +72,8 @@ function generateBingoCard(pokemonList){
 
 // Given an uploaded card, changes the input board to reflect the card
 function cardToInput(){
+    document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Loading...");
+
     // Create Post Request
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.open("POST", "/bingo-card-to-input");
@@ -80,22 +82,30 @@ function cardToInput(){
         if(xmlHttp.readyState == 4){
             if(xmlHttp.status == 200){
                 listToBoard(xmlHttp.responseText);
+                document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
             }else{
+                document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
                 console.log("error: ", xmlHttp);
             }
         }
     }
 
     // Initialize Formdata
-    let card = document.getElementById("card-to-input")
-    let fd = new FormData();
-    fd.append(card.getAttribute("name"), card.files[0], card.files[0].name);
-
-    xmlHttp.send(fd);
+    try{
+        let card = document.getElementById("card-to-input");
+        let fd = new FormData();
+        fd.append(card.getAttribute("name"), card.files[0], card.files[0].name);
+        xmlHttp.send(fd);
+    } catch {
+        document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
+        return;
+    }
 }
 
 // Given a path to a card, changes the input board to reflect the card
 function pathToInput(path = null){
+    document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Loading...");
+
     // Create Post Request
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.open("POST", "/bingo-path-to-input");
@@ -104,15 +114,22 @@ function pathToInput(path = null){
         if(xmlHttp.readyState == 4){
             if(xmlHttp.status == 200){
                 listToBoard(xmlHttp.responseText);
+                document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
             }else{
+                document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
                 console.log("error: ", xmlHttp);
             }
         }
     }
 
-    // if no path is supplied, use the generated one 
-    if(path == null){
-        path = document.getElementById("bingo-div").childNodes[0].getAttribute("src");
+    try{
+        // if no path is supplied, use the generated one 
+        if(path == null){
+            path = document.getElementById("bingo-div").childNodes[0].getAttribute("src");
+        }
+    } catch {
+        document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
+        return;
     }
 
     // Initialize Formdata
