@@ -34,7 +34,7 @@ def generateBingoCard(pokemonList, width = 5):
         if(pokemon[0] == "free"):
             sprite = Image.open("static/assets/images/bingo/free.png")
         else:
-            sprite = Image.open("static/assets/images/bingo/{}/{}.png".format(pokemon[1], pokemon[0])).resize((279, 279))
+            sprite = Image.open("static/assets/images/bingo/{}/{}.png".format(pokemon[1], pokemon[0])).resize((256, 256), resample=Image.NEAREST)
         im.paste(sprite, (cursor[0], cursor[1]), sprite.convert("RGBA"))
 
         if(pokemon[3] == 'completed'):
@@ -135,7 +135,7 @@ def cardToinput(path):
     vertical_offset = 358
     horizontal_length = 294
     vertical_length = 308
-    pokemon_width = 279     # Height is identical to width
+    pokemon_width = 256     # Height is identical to width
 
     cursor = [horizontal_offset, vertical_offset]
 
@@ -177,8 +177,8 @@ def findImageMatch(image):
             if not os.path.isfile(shiny_comparison):
                 continue
 
-            comparison_image = Image.open(comparison).resize((279, 279)).convert("RGB")
-            shiny_comparison_image = Image.open(shiny_comparison).resize((279, 279)).convert("RGB")
+            comparison_image = Image.open(comparison).resize((256, 256), resample=Image.NEAREST).convert("RGB")
+            shiny_comparison_image = Image.open(shiny_comparison).resize((256, 256), resample=Image.NEAREST).convert("RGB")
 
             if(checkMatch(image, comparison_image)):
                 return comparison
@@ -190,12 +190,11 @@ def findImageMatch(image):
 # Given an image of one pokemon (cropped from a bingo card) and a pokemon to compare to, returns whether or not they match
 def checkMatch(pokemon, comparison):
     # Check central pixel first, this gives a big chance of failing
-    if(not pokemon.getpixel((140, 140)) == comparison.getpixel((140, 140))):
+    if(not (pokemon.getpixel((140, 140)) == comparison.getpixel((140, 140)) or pokemon.getpixel((140, 140)) == (0, 0, 0) or pokemon.getpixel((140, 140)) == (255, 255, 255))):
         # print("failed center pixel check")
         return False
 
     # Now check grid of equally spaced pixels for a more thorough check
-    fault_tolerance = 50         # Amount of pixels that can be wrong, as at the edges they can get wonky values
     start_x = 90
     start_y = 90
     end_x = 210
@@ -210,12 +209,8 @@ def checkMatch(pokemon, comparison):
             cpix = comparison.getpixel((start_x+increment_x*i, start_y+increment_y*j))
             # print("ppix == {}; cpix == {}".format(ppix, cpix))
 
-            if(not (ppix == cpix or cpix == (0, 0, 0) or cpix == (255, 255, 255)) ):
-                # print("{}; {}".format(i, j))
-                fault_tolerance -= 1
-                if(fault_tolerance == 0):
-                    return False
-    print("faults: {}".format(50 - fault_tolerance))
+            if(not (ppix == cpix or ppix == (0, 0, 0) or ppix == (255, 255, 255)) ):
+                return False
     return True
 
 # Given the path to an image of a Pokemon, returns the [Pokemon, Game, isShiny, isCompleted] pokemon info (isCompleted is always False)
