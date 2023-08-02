@@ -190,7 +190,7 @@ def findImageMatch(image):
 # Given an image of one pokemon (cropped from a bingo card) and a pokemon to compare to, returns whether or not they match
 def checkMatch(pokemon, comparison):
     # Check central pixel first, this gives a big chance of failing
-    if(not (pokemon.getpixel((140, 140)) == comparison.getpixel((140, 140)) or pokemon.getpixel((140, 140)) == (0, 0, 0) or pokemon.getpixel((140, 140)) == (255, 255, 255))):
+    if(not (pokemon.getpixel((140, 140)) == comparison.getpixel((140, 140)) or pokemon.getpixel((140, 140)) == (255, 255, 255))):
         # print("failed center pixel check")
         return False
 
@@ -199,7 +199,7 @@ def checkMatch(pokemon, comparison):
     start_y = 90
     end_x = 210
     end_y = 210
-    loop_size = 20      # How many rows/columns should be checked?
+    loop_size = 5      # How many rows/columns should be checked?
     increment_x = (end_x-start_x)//loop_size
     increment_y = (end_y-start_y)//loop_size
 
@@ -209,7 +209,7 @@ def checkMatch(pokemon, comparison):
             cpix = comparison.getpixel((start_x+increment_x*i, start_y+increment_y*j))
             # print("ppix == {}; cpix == {}".format(ppix, cpix))
 
-            if(not (ppix == cpix or ppix == (0, 0, 0) or ppix == (255, 255, 255)) ):
+            if(not (ppix == cpix or ppix == (255, 255, 255)) ):
                 return False
     return True
 
