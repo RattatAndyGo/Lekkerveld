@@ -12,14 +12,18 @@ class Square{
 }
 
 window.onload = function(){
+    // If there is no username, prompt to create one
+    checkUsername();
+
+    // Add onchange events to inputs
     let changerDiv = document.getElementById("mass-changer");
     changerDiv.querySelectorAll("select").forEach((e) => {
         e.onchange = function(){
             Array.from(document.getElementsByClassName(e.className)).forEach((f) => {
                 f.value = e.value;
-            })
+            });
         }
-    })
+    });
 }
 
 function requestBingoCard(){
@@ -45,22 +49,21 @@ function generateBingoCard(pokemonList){
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.open("POST", "/bingo-generate");
 
-    xmlHttp.onreadystatechange = function() {
-        if(xmlHttp.readyState == 4){
-            if(xmlHttp.status == 200){
-                path = xmlHttp.responseText;
-                if(path == "requestOverload"){
-                    document.getElementById("bingo-div").replaceChildren("You generated too many bingo cards too quickly (max. is 10). Waiting 30 seconds between requests resets this counter.");
-                    return;
-                }
-
-                const img = new Image(); 
-                img.src = path;
-                document.getElementById("bingo-div").replaceChildren(img);
-            }else{
-                console.log("error: ", xmlHttp);
+    xmlHttp.onload = function() {
+        if(xmlHttp.status == 200){
+            path = xmlHttp.responseText;
+            if(path == "requestOverload"){
+                document.getElementById("bingo-div").replaceChildren("You generated too many bingo cards too quickly.");
+                return;
             }
+
+            const img = new Image(); 
+            img.src = path;
+            document.getElementById("bingo-div").replaceChildren(img);
+        }else{
+            console.log("error: ", xmlHttp);
         }
+    
     }
 
     // Initialize Formdata
@@ -78,15 +81,13 @@ function cardToInput(){
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.open("POST", "/bingo-card-to-input");
 
-    xmlHttp.onreadystatechange = function() {
-        if(xmlHttp.readyState == 4){
-            if(xmlHttp.status == 200){
-                listToBoard(xmlHttp.responseText);
-                document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
-            }else{
-                document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
-                console.log("error: ", xmlHttp);
-            }
+    xmlHttp.onload = function() {
+        if(xmlHttp.status == 200){
+            listToBoard(xmlHttp.responseText);
+            document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
+        }else{
+            document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
+            console.log("error: ", xmlHttp);
         }
     }
 
@@ -100,43 +101,6 @@ function cardToInput(){
         document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
         return;
     }
-}
-
-// Given a path to a card, changes the input board to reflect the card
-function pathToInput(path = null){
-    document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Loading...");
-
-    // Create Post Request
-    let xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("POST", "/bingo-path-to-input");
-
-    xmlHttp.onreadystatechange = function() {
-        if(xmlHttp.readyState == 4){
-            if(xmlHttp.status == 200){
-                listToBoard(xmlHttp.responseText);
-                document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
-            }else{
-                document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
-                console.log("error: ", xmlHttp);
-            }
-        }
-    }
-
-    try{
-        // if no path is supplied, use the generated one 
-        if(path == null){
-            path = document.getElementById("bingo-div").childNodes[0].getAttribute("src");
-        }
-    } catch {
-        document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
-        return;
-    }
-
-    // Initialize Formdata
-    let fd = new FormData();
-    fd.append("path", JSON.stringify(path));
-
-    xmlHttp.send(fd);
 }
 
 // Generates a string based on the current board, which has all select values in order separated by spaces
@@ -176,12 +140,12 @@ function listToBoard(list){
 }
 
 // Stores current state of the board, to later restore using loadBoard() (board is deleted after 1 year)
-function saveBoard(){
+function saveInputs(){
     setCookie("board", boardToString(), 365);
 }
 
 // Loads the board in the state it was when last saved
-function loadBoard(){
+function loadInputs(){
     let board = getCookie("board");
     if(board == ""){
         console.log("No board is stored. Please store a board first. If you believe you have stored a board in the past, either you removed your cookies or the cookie expired (the cookie is deleted after 365 days)");
@@ -190,6 +154,137 @@ function loadBoard(){
 
     stringToBoard(board);
 }
+
+function saveBoard(){
+    // Create Post Request
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("POST", "/bingo-save-board");
+
+    xmlHttp.onload = function() {
+        if(xmlHttp.status == 200){
+            console.log("success!");
+        }else{
+            console.log("error: ", xmlHttp);
+        }
+    }
+
+    // Initialize Formdata
+    let fd = new FormData();
+    fd.append("id", JSON.stringify(getCookie("id")));
+    
+    xmlHttp.send(fd);
+}
+
+function loadBoard(){
+    // Create Post Request
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("POST", "/bingo-load-board");
+
+    xmlHttp.onload = function() {
+        if(xmlHttp.status == 200){
+            listToBoard(xmlHttp.responseText);
+        }else{
+            console.log("error: ", xmlHttp.responseText);
+        }
+    }
+
+    // Initialize Formdata
+    let fd = new FormData();
+    fd.append("id", JSON.stringify(getCookie("id")));
+    
+    xmlHttp.send(fd);
+}
+
+// Checks if user has a username cookie and if not, creates one 
+async function checkUsername() {
+    if(getCookie("username") != ""){
+        refreshCookie("username");
+        refreshCookie("idToken");
+        return
+    }
+
+    let username = prompt("Please enter your name:", "");
+    while(username == "" || username == null){
+        username = prompt("Please enter your name (it cannot be empty):", "");
+    }
+
+    await checkForUsed(username).then(
+        function(response){inUse = (response == "used");},
+        function(Error){console.log(Error); return;}
+    );
+
+    if(inUse){
+        let id = prompt("This username is already in use. If this is you on another device, please fill in its id token that can be found on the bottom of the page. If this is not you, leave the input blank.");
+        
+        await checkID(username, id).then(
+            function(response){match = (response == "match");},
+            function(Error){console.log(Error); return;}
+        );
+        if(!match){
+            location.reload();      // Resets questions
+            return;
+        }
+
+        setCookie("username", username, 365);
+        setCookie("idToken", id, 365);
+        return;
+    }
+
+    setCookie("idToken", window.crypto.randomUUID().slice(-12), 365);       // Only use 12 characters as it needs to be typeable
+    setCookie("username", username, 365);
+}
+
+// Given a username, returns true if the username is already in use
+function checkForUsed(username){
+    return new Promise((resolve, reject) => {
+        // Create Post Request
+        let xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("POST", "/username-check-for-used");
+
+        xmlHttp.onload = function() {
+            if(xmlHttp.status == 200){
+                resolve(xmlHttp.response);
+            }else{
+                reject(Error("An error occurred: " + xmlHttp.status));
+            }
+        }
+        xmlHttp.onerror = function () {
+            reject(Error("An error occurred: " + xmlHttp.status));
+        };
+
+        // Initialize Formdata
+        let fd = new FormData();
+        fd.append("username", JSON.stringify(username));
+        
+        xmlHttp.send(fd);
+    });
+}
+
+// Checks if username and id are linked
+function checkID(username, id){
+    return new Promise((resolve, reject) => {
+        // Create Post Request
+        let xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("POST", "/username-check-id");
+
+        xmlHttp.onload = function() {
+            if(xmlHttp.status == 200){
+                resolve(xmlHttp.response);
+            }else{
+                reject(Error("An error occurred: " + xmlHttp.status));
+            }
+        }
+        xmlHttp.onerror = function () {
+            reject(Error("An error occurred: " + xmlHttp.status));
+        };
+
+        // Initialize Formdata
+        let fd = new FormData();
+        fd.append("username", JSON.stringify(username));
+        fd.append("id", JSON.stringify(id));
+        
+        xmlHttp.send(fd);
+    });}
 
 // Function to set a cookie
 // cname is the name of the cookie, cvalue is the value of the cookie, exdays is the amount of days the cookie is stored
@@ -217,4 +312,9 @@ function getCookie(cname) {
         }
     }
     return "";
+}
+
+// Resets a cookie to the same value but with an updated expiry time
+function refreshCookie(cname){
+    setCookie(cname, getCookie(cname), 365);
 }

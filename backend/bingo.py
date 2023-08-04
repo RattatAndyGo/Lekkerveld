@@ -17,8 +17,8 @@ def merge(im1, im2):
 # All Pokemon sprites sourced from https://veekun.com/dex/downloads
 def generateBingoCard(pokemonList, width = 5):
     # Offset to first square, and length of a square
-    horizontal_offset = 41
-    vertical_offset = 358
+    horizontal_offset = 52
+    vertical_offset = 369
     horizontal_length = 294
     vertical_length = 308
 
@@ -95,7 +95,6 @@ def getFirstOccurrence(pokemonList, pokemon):
     for idx in range(len(pokemonList)):
         if(pokemon == pokemonList[idx][0]):
             return idx
-    print("Pokemon {} not found!".format(pokemon))
     return -1
 
 # [dexNo, game, isShiny, isCompleted]
@@ -116,52 +115,69 @@ def randomizeVariable(i):
 def getDexNo(pokemon):
     return int(''.join(filter(str.isdigit, str(pokemon[0]))))
 
-# Returns an array of paths of all bingo cards
-def getAllBingoCards():
-    cards = []
-    dir = "static/assets/images/bingo/bingo-cards"
-    for file in os.listdir(dir):
-        f = os.path.join(dir, file)
-        # checking if it is a file
-        if os.path.isfile(f):
-            cards.append(f)
-    return cards
-
 # Given a card (uploaded and served via JS), return an array of array containing all info of the pokemon (dexNo, game, isShiny, isCompleted)
 def cardToinput(path):
-    print(path)
+    pokemon_width = 256     # Height is identical to width
+    pokemonList = getPokemonImagesFromCard(path, pokemon_width)
+    res = [None] * len(pokemonList)       # Fill res with None values to allow random access to elements
+
+    d = "static/assets/images/bingo"        # Parent directory
+    for dir in os.listdir(d):
+        path = os.path.join(d, dir)
+        if not os.path.isdir(path):
+            continue
+
+        for file in os.listdir(path):       # Iterate over files in children
+            if("201" in file):
+                print(file)
+
+            comparison = os.path.join(path, file)
+            # checking if it is a file
+            if not os.path.isfile(comparison):
+                continue
+
+            shiny_comparison = os.path.join(path, os.path.join("shiny", file))
+            # checking if it is a file
+            if not os.path.isfile(shiny_comparison):
+                continue
+
+            comparison_image = Image.open(comparison).resize((256, 256), resample=Image.NEAREST).convert("RGB")
+            shiny_comparison_image = Image.open(shiny_comparison).resize((256, 256), resample=Image.NEAREST).convert("RGB")
+
+            for i in range(len(pokemonList)):
+                if(checkMatch(pokemonList[i], comparison_image)):
+                    res[i] = pathToPokemon(comparison)
+                elif(checkMatch(pokemonList[i], shiny_comparison_image)):
+                    res[i] = pathToPokemon(shiny_comparison)
+    
+    return res
+
+def getPokemonImagesFromCard(path, pokemon_width):
     # Offset to first square, and length of a square
-    horizontal_offset = 41
-    vertical_offset = 358
+    horizontal_offset = 52
+    vertical_offset = 369
     horizontal_length = 294
     vertical_length = 308
-    pokemon_width = 256     # Height is identical to width
 
     cursor = [horizontal_offset, vertical_offset]
+    card = Image.open(path).copy()
 
     res = []
-
     for i in range(25):
-        im = Image.open(path).copy()
-        pokemon = im.crop((cursor[0], cursor[1], cursor[0] + pokemon_width, cursor[1] + pokemon_width))
+        pokemon = card.crop((cursor[0], cursor[1], cursor[0] + pokemon_width, cursor[1] + pokemon_width))
+        res.append(pokemon)
 
         # Update cursor
         cursor[0] = (cursor[0] + horizontal_length)%(horizontal_length*5)
         if(cursor[0] == horizontal_offset):
             cursor[1] += vertical_length
 
-        image = findImageMatch(pokemon)
-        res.append(pathToPokemon(image))
-
     return res
-
 
 # Given an image of one pokemon (cropped from a bingo card), find the path to the image used when generating the bingo card
 def findImageMatch(image):
-    debug_counter = 0
     d = "static/assets/images/bingo"        # Parent directory
     for dir in os.listdir(d):
-        debug_counter += 1
         path = os.path.join(d, dir)
         if not os.path.isdir(path):
             continue
@@ -191,7 +207,6 @@ def findImageMatch(image):
 def checkMatch(pokemon, comparison):
     # Check central pixel first, this gives a big chance of failing
     if(not (pokemon.getpixel((140, 140)) == comparison.getpixel((140, 140)) or pokemon.getpixel((140, 140)) == (255, 255, 255))):
-        # print("failed center pixel check")
         return False
 
     # Now check grid of equally spaced pixels for a more thorough check
@@ -207,7 +222,6 @@ def checkMatch(pokemon, comparison):
         for j in range(loop_size):
             ppix = pokemon.getpixel((start_x+increment_x*i, start_y+increment_y*j))
             cpix = comparison.getpixel((start_x+increment_x*i, start_y+increment_y*j))
-            # print("ppix == {}; cpix == {}".format(ppix, cpix))
 
             if(not (ppix == cpix or ppix == (255, 255, 255)) ):
                 return False
@@ -228,3 +242,16 @@ def pathToPokemon(path):
         isShiny = "normal"
 
     return [pokemon, game, isShiny, "incompleted"]
+
+# Save the last generated board
+def saveBoard(id):
+    # SQL query to read last_generated and write it in saved_board
+    print("board saved to {}!".format(id))
+
+def loadBoard(id):
+    # SQL query to read saved_board, for now hard coded test case
+    saved_board = []
+    for i in range(25):
+        saved_board.append(["19", "heartgold-soulsilver", "shiny", "incompleted"])
+    print("board loaded from {}!".format(id))
+    return saved_board

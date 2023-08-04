@@ -1,0 +1,25 @@
+<!-- HTML to include to make ID cookie visible -->
+<p>Hover over the box below to see your id:</p>
+            <div id="id-div"></div>
+
+<style>
+    #id-div{
+        border: 2px solid black;
+        width: fit-content;
+    }
+
+    #id-div p{
+        color: transparent;
+        margin: 0 0.25rem;
+    }
+
+    #id-div p:hover{
+        color: black;
+    }
+</style>
+
+<script>
+    window.addEventListener("load", function(){
+        document.getElementById("id-div").innerHTML = `<p>${getCookie("idToken")}</p>`;
+    }, false);
+</script>

@@ -12,15 +12,16 @@ table{
 }
 
 #buttons{
-    margin: 0 20%;
+    margin: 0;
     width: 100%;
     height: fit-content;
+    display: flex;
 }
 
 button{
-    margin: 1rem 0;
+    margin: 0% 0.25%;
     height: 3rem;
-    width: 20%;
+    width: 19.5%;
 }
 
 #mass-changer{
@@ -38,8 +39,4 @@ button{
 #mass-changer select{
     height: fit-content;
     margin: 0.5rem 1rem;
-}
-
-.bingo-image{
-    width: 19%;     /* 19% and not 20% because 20% makes fifth card overflow to next row */
 }

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'includes/head.html' %}
+
+    <title>Cookies | Lekkerveld</title>
+</head>
+
+<body>
+    {% include 'includes/navbar.html' %}
+
+    <div id="page-container"> 
+        <div id="page-content">
+            <h1>Cookie usage on Lekkerveld.be</h1>
+
+            <p>Below is a summary of all cookies used on Lekkerveld, and their purpose.</p>
+
+            <ul>
+                <li>
+                    username<br>
+                    Used for users to identify themselves, and to check on their friends' hunts.<br>
+                </li><li>
+                    idToken<br>
+                    The main reason I even store data on server instead of all locally, is so users can access the same data on multiple devices. As users can check out other users' hunts using their username, another cookie had to serve for (somewhat) secure identification. idToken cannot easily be shared accidentally, so it is used in all server requests requiring identification.<br>
+                    The server does not use the username cookie to identify users in requests, rather it uses idToken.
+                </li><li>
+                    board<br>
+                    This stores the inputs of a bingo card.
+                </li>
+            </ul>
+
+            {% include 'includes/footer.html' %}
+
+        </div>
+    </div>
+</body>
+</html>

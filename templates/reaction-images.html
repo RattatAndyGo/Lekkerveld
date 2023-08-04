@@ -34,10 +34,10 @@
             <p>
                 This page is not meant to be frequently visited, but rather serves as a tutorial to use this feature. The frontend above to get random images is purely for asthetics and experimenting.<br>
                 The idea is to have a keyboard shortcut that, when pressed, automatically loads a random image of a particular theme into your clipboard, to be pasted anywhere.<br>
-                The images are retrieved from <a href="/get-random-image" target="_blank">www.lekkerveld.be/get-random-image</a> and placed in your clipboard. To implement this on your own device, make a shell script with the following content, and link a keyboard shortcut to it:<br><br>
+                The images are retrieved from www.lekkerveld.be/get-random-image and placed in your clipboard. To implement this on your own device, make a shell script with the following content, and link a keyboard shortcut to it:<br><br>
                 <i>#!/bin/bash<br>
                     curl https://www.lekkerveld.be/get-random-image?\&imgtype=ANGERY | xclip -selection clipboard -target image/png -i</i><br><br>
-                imgtype=ANGERY means the image will be from the bait theme. If you want anything else, replace bait with one of the other options.
+                imgtype=ANGERY means the image will be from the ANGERY theme. If you want anything else, replace ANGERY with one of the other options.
             </p>
 
             <hr>
