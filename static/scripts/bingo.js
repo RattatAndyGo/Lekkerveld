@@ -27,7 +27,12 @@ window.onload = function(){
 }
 
 function requestBingoCard(){
-    pokemonList = [];
+    generateBingoCard(inputsToArray());
+}
+
+// Looks at the input fields and creates an array of arrays of the requested pokemon
+function inputsToArray(){
+    let pokemonList = [];
     document.querySelectorAll(".input-td").forEach((e) => {
         pokemon = new Square();
         e.querySelectorAll("select").forEach((f) => {
@@ -41,7 +46,7 @@ function requestBingoCard(){
     for(let i = 0; i < pokemonList.length; i++){
         pokemonList[i] = pokemonList[i].paramToArray();
     }
-    generateBingoCard(pokemonList);
+    return pokemonList;
 }
 
 function generateBingoCard(pokemonList){
@@ -68,6 +73,7 @@ function generateBingoCard(pokemonList){
 
     // Initialize Formdata
     let fd = new FormData();
+    fd.append("id", JSON.stringify(getCookie("idToken")));
     fd.append("pokemon", JSON.stringify(pokemonList));
 
     xmlHttp.send(fd);
@@ -83,7 +89,7 @@ function cardToInput(){
 
     xmlHttp.onload = function() {
         if(xmlHttp.status == 200){
-            listToBoard(xmlHttp.responseText);
+            jsonToBoard(xmlHttp.responseText);
             document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
         }else{
             document.querySelectorAll(".reverse-engineer-button").forEach((e) => e.innerHTML = "Reverse engineer card");
@@ -103,40 +109,33 @@ function cardToInput(){
     }
 }
 
-// Generates a string based on the current board, which has all select values in order separated by spaces
+// Generates a JSON string based on the current input board
 function boardToString(){
-    let str = "";
-    document.querySelectorAll("select").forEach((e) => {
-        str += e.value + " ";
-    });
-    return str;
+    return JSON.stringify(inputsToArray())
 }
 
-// Takes a string as argument and changes the board to reflect the contents of the string
-function stringToBoard(str){
+// Takes an array of arrays as argument and changes the board to reflect the contents of the array
+function arrayToBoard(pokemonList){
+    pokemonList = pokemonList.flat();
     board = document.querySelectorAll("select");
-    let data = str.split(" ");
-    console.log(data)
-    let counter = 0;
 
     // input checks
-    if(board.length != data.length){
-        throw ("IllegalArgumentException: The supplied string has the wrong length. The expected length is " + board.length + ", but was " + data.length);
+    if(board.length != pokemonList.length){
+        throw ("IllegalArgumentException: The supplied string has the wrong length. The expected length is " + board.length + ", but was " + pokemonList.length);
     }
 
+    let counter = 0;
     board.forEach((e) => {
-        e.value = data[counter];
+        e.value = pokemonList[counter];
         counter++;
     });
 }
 
-// Takes a list as argument and changes the board to reflect the contents of the list
-function listToBoard(list){
-    list = list.replace(/[\[\]"]/g, "")
-    list = list.replace(/,/g, " ")
-    list = list.replace("\n", "")       // At very end a \n appears, no clue where from so I just filter it here
-    list += " random random normal incompleted"
-    stringToBoard(list);
+// Takes json as argument and changes the board to reflect the contents of the json
+function jsonToBoard(array){
+    array = JSON.parse(array);
+    array.push(["random", "random", "normal", "incompleted"]);      // Mass changer button
+    arrayToBoard(array);
 }
 
 // Stores current state of the board, to later restore using loadBoard() (board is deleted after 1 year)
@@ -152,7 +151,9 @@ function loadInputs(){
         return;
     }
 
-    stringToBoard(board);
+    board = JSON.parse(board);
+    board.push(["random", "random", "normal", "incompleted"]);      // Mass changer button
+    arrayToBoard(board);
 }
 
 function saveBoard(){
@@ -170,7 +171,7 @@ function saveBoard(){
 
     // Initialize Formdata
     let fd = new FormData();
-    fd.append("id", JSON.stringify(getCookie("id")));
+    fd.append("id", JSON.stringify(getCookie("idToken")));
     
     xmlHttp.send(fd);
 }
@@ -182,7 +183,7 @@ function loadBoard(){
 
     xmlHttp.onload = function() {
         if(xmlHttp.status == 200){
-            listToBoard(xmlHttp.responseText);
+            jsonToBoard(xmlHttp.responseText);
         }else{
             console.log("error: ", xmlHttp.responseText);
         }
@@ -190,7 +191,7 @@ function loadBoard(){
 
     // Initialize Formdata
     let fd = new FormData();
-    fd.append("id", JSON.stringify(getCookie("id")));
+    fd.append("id", JSON.stringify(getCookie("idToken")));
     
     xmlHttp.send(fd);
 }
@@ -204,10 +205,13 @@ async function checkUsername() {
     }
 
     let username = prompt("Please enter your name:", "");
-    while(username == "" || username == null){
-        username = prompt("Please enter your name (it cannot be empty):", "");
+    while(!(/^[a-zA-Z0-9_]+$/).test(username)){
+        username = prompt("Please enter your name (only alphanumerical characters and underscore are allowed):", "");
     }
 
+    if(username == null) location.reload()  // You can bypass the prompts by pressing escape, this prevents users from not choosing a username, as nothing works without it
+
+    let inUse = true;
     await checkForUsed(username).then(
         function(response){inUse = (response == "used");},
         function(Error){console.log(Error); return;}
@@ -216,6 +220,7 @@ async function checkUsername() {
     if(inUse){
         let id = prompt("This username is already in use. If this is you on another device, please fill in its id token that can be found on the bottom of the page. If this is not you, leave the input blank.");
         
+        let match = false;
         await checkID(username, id).then(
             function(response){match = (response == "match");},
             function(Error){console.log(Error); return;}
@@ -229,9 +234,12 @@ async function checkUsername() {
         setCookie("idToken", id, 365);
         return;
     }
-
-    setCookie("idToken", window.crypto.randomUUID().slice(-12), 365);       // Only use 12 characters as it needs to be typeable
+    
+    let id = window.crypto.randomUUID().slice(-12)
+    setCookie("idToken", id, 365);       // Only use 12 characters as it needs to be typeable
     setCookie("username", username, 365);
+    
+    insertIntoDB(id, username);
 }
 
 // Given a username, returns true if the username is already in use
@@ -284,7 +292,18 @@ function checkID(username, id){
         fd.append("id", JSON.stringify(id));
         
         xmlHttp.send(fd);
-    });}
+    });
+}
+
+function insertIntoDB(id, username){
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("POST", "/username-add-new-user");
+
+    let fd = new FormData();
+    fd.append("username", JSON.stringify(username));
+    fd.append("id", JSON.stringify(id));
+    xmlHttp.send(fd);
+}
 
 // Function to set a cookie
 // cname is the name of the cookie, cvalue is the value of the cookie, exdays is the amount of days the cookie is stored

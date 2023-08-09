@@ -1,13 +1,32 @@
-import random
+from . import sql
+import pandas as pd
 
 def checkForUsed(username):
-    # SQL query to check if username is already in use
-    if random.randint(0, 1) == 0:   # Random for testing until database is set up
+    df = sql.run_query("""
+                    SELECT `username`
+                    FROM master
+                    WHERE username = %(username)s
+                  """, {'username': username})
+    
+    if df.empty :
         return "unused"
     return "used"
 
 def checkID(username, id):
-    # SQL query to check if username and ID match up
-    if random.randint(0, 1) == 0:   # Random for testing until database is set up
-        return "match"
-    return "no match"
+    df = sql.run_query("""
+                    SELECT `id`
+                    FROM master
+                    WHERE username = %(username)s
+                        AND id = %(id)s
+                    """, {'username': username, 'id': id})
+    
+    if df.empty:
+        return "no match"
+    return "match"
+
+
+def insertIntoDB(username, id):
+    sql.run_update_query("""
+                            INSERT INTO master (`username`, `id`)
+                            VALUES (%(username)s, %(id)s);
+                        """, {"username": username, "id": id})

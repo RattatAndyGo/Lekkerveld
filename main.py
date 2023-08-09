@@ -16,7 +16,7 @@ app = Flask(__name__)
 
 @app.route('/bingo-generate', methods=['POST'])
 def bingoGenerate():
-    return bingo.formatBingoCard(json.loads(request.form.get('pokemon')))
+    return bingo.formatBingoCard(json.loads(request.form.get('id')), json.loads(request.form.get('pokemon')))
 
     # return("requestOverload")
     # To be used when implementing some kind of max request speed, requestOverload is caught in js and error message is displayed
@@ -35,12 +35,17 @@ def bingoLoadBoard():
     return bingo.loadBoard(json.loads(request.form.get('id')))
 
 @app.route('/username-check-for-used', methods=['POST'])
-def bingoCheckForUsed():
+def usernameCheckForUsed():
     return username.checkForUsed(json.loads(request.form.get('username')))
 
 @app.route('/username-check-id', methods=['POST'])
-def bingoCheckID():
+def usernameCheckID():
     return username.checkID(json.loads(request.form.get('username')), json.loads(request.form.get('id')))
+
+@app.route('/username-add-new-user', methods=['POST'])
+def usernameAddNewUser():
+    username.insertIntoDB(json.loads(request.form.get('username')), json.loads(request.form.get('id')))
+    return "success"    # Return value is not used
 
 
 # ╔═╗╔═╗╔═╗  ╦═╗╔═╗╦ ╦╔╦╗╔═╗╔═╗

@@ -3,6 +3,9 @@ import os
 from random import randint
 import datetime
 import pathlib
+from . import sql
+import pandas as pd
+import json
 
 def merge(im1, im2):
     w = im1.size[0] + im2.size[0]
@@ -54,7 +57,7 @@ def generateBingoCard(pokemonList, width = 5):
 
     return str(path)
 
-def formatBingoCard(pokemonList, width = 5, height = 5):
+def formatBingoCard(id, pokemonList, width = 5, height = 5):
     pokemonMaxDict = {"gold":251, "silver":251, "crystal":251, "ruby-sapphire":386, "emerald":386, "firered-leafgreen":386, "diamond-pearl":493, "platinum":493, "heartgold-soulsilver":493, "black-white":649}
 
     # Every pokemonList[i] is an array of strings, formatted like [dexNo, game, isShiny (normal or shiny), isCompleted (incompleted or completed)]
@@ -88,6 +91,7 @@ def formatBingoCard(pokemonList, width = 5, height = 5):
             if(counter > 127):
                 raise RecursionError("can't find a pokemon in the chosen game (tried {} times)".format(counter))
     
+    storeBoardInDB(id, json.dumps(pokemonList))
     return generateBingoCard(pokemonList)
 
 # Returns index of first Pokemon pokemon, or -1 if it is not present
@@ -119,7 +123,7 @@ def getDexNo(pokemon):
 def cardToinput(path):
     pokemon_width = 256     # Height is identical to width
     pokemonList = getPokemonImagesFromCard(path, pokemon_width)
-    res = [None] * len(pokemonList)       # Fill res with None values to allow random access to elements
+    res = [["free", "random", "normal", "incompleted"]] * len(pokemonList)       # Fill res with filler values to allow random access to elements
 
     d = "static/assets/images/bingo"        # Parent directory
     for dir in os.listdir(d):
@@ -128,8 +132,6 @@ def cardToinput(path):
             continue
 
         for file in os.listdir(path):       # Iterate over files in children
-            if("201" in file):
-                print(file)
 
             comparison = os.path.join(path, file)
             # checking if it is a file
@@ -174,35 +176,6 @@ def getPokemonImagesFromCard(path, pokemon_width):
 
     return res
 
-# Given an image of one pokemon (cropped from a bingo card), find the path to the image used when generating the bingo card
-def findImageMatch(image):
-    d = "static/assets/images/bingo"        # Parent directory
-    for dir in os.listdir(d):
-        path = os.path.join(d, dir)
-        if not os.path.isdir(path):
-            continue
-
-        for file in os.listdir(path):       # Iterate over files in children
-            comparison = os.path.join(path, file)
-            # checking if it is a file
-            if not os.path.isfile(comparison):
-                continue
-
-            shiny_comparison = os.path.join(path, os.path.join("shiny", file))
-            # checking if it is a file
-            if not os.path.isfile(shiny_comparison):
-                continue
-
-            comparison_image = Image.open(comparison).resize((256, 256), resample=Image.NEAREST).convert("RGB")
-            shiny_comparison_image = Image.open(shiny_comparison).resize((256, 256), resample=Image.NEAREST).convert("RGB")
-
-            if(checkMatch(image, comparison_image)):
-                return comparison
-            if(checkMatch(image, shiny_comparison_image)):
-                return shiny_comparison
-            
-    return None
-
 # Given an image of one pokemon (cropped from a bingo card) and a pokemon to compare to, returns whether or not they match
 def checkMatch(pokemon, comparison):
     # Check central pixel first, this gives a big chance of failing
@@ -229,10 +202,6 @@ def checkMatch(pokemon, comparison):
 
 # Given the path to an image of a Pokemon, returns the [Pokemon, Game, isShiny, isCompleted] pokemon info (isCompleted is always False)
 def pathToPokemon(path):
-    if(path == None):
-        print("NO POKEMON FOUND SAD POG")
-        return ["free", "random", "normal", "incompleted"]
-
     path = path.split("/")
     pokemon = path[-1].replace(".png", "")
     game = path[4]
@@ -243,15 +212,30 @@ def pathToPokemon(path):
 
     return [pokemon, game, isShiny, "incompleted"]
 
+def storeBoardInDB(id, pokemonList):
+    sql.run_update_query("""
+                        UPDATE `master`
+                        SET `last_generated` = %(pl)s
+                        WHERE id=%(id)s;
+                    """, {"pl": pokemonList, "id": id})
+
 # Save the last generated board
 def saveBoard(id):
-    # SQL query to read last_generated and write it in saved_board
-    print("board saved to {}!".format(id))
+    sql.run_update_query("""
+                        UPDATE `master` 
+                        SET `saved_board`= (SELECT last_generated 
+                                            FROM `master` 
+                                            WHERE id=%(id)s) 
+                        WHERE id=%(id)s; 
+                    """, {"id": id})
 
 def loadBoard(id):
-    # SQL query to read saved_board, for now hard coded test case
-    saved_board = []
-    for i in range(25):
-        saved_board.append(["19", "heartgold-soulsilver", "shiny", "incompleted"])
-    print("board loaded from {}!".format(id))
-    return saved_board
+    return sql.get_value("""
+                    SELECT `saved_board`
+                    FROM `master`
+                    WHERE id=%(id)s
+                """, {"id": id})
+
+
+# storeBoardInDB("x", "testing once again")
+# storeBoardInDB("f925624d088a", json.dumps([["testa1", "testa2"], ["testb1", "testb2"]]))
