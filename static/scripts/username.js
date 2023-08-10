@@ -1,17 +1,48 @@
+window.addEventListener("load", function() {
+    checkUsername();
+});
+
 // Checks if user has a username cookie and if not, creates one 
-async function checkUsername() {
+function checkUsername() {
     if(getCookie("username") != ""){
         refreshCookie("username");
         refreshCookie("idToken");
-        return
+    }else{
+        changePageContent();
     }
+}
 
-    let username = prompt("Please enter your name:", "");
-    while(!(/^[a-zA-Z0-9_]+$/).test(username)){
-        username = prompt("Please enter your name (only alphanumerical characters and underscore are allowed):", "");
+function changePageContent(){
+    document.getElementById("page-content").innerHTML = `<h1>Select username</h1>
+                                                        <p>This page is used to pick a username. Once you have done so, you will return to the page you were trying to visit.
+                                                        More info about how we use cookies can be found <a href="/cookies">here</a></p>
+                                                        <p>Insert your username here:</p>
+                                                        <input type="text" id="username-input" name="username"></input>
+                                                        <p>In case you want to use the same username as another device, enter their id here:</p>
+                                                        <input type="text" id="id-input" name="id"></input>
+                                                        <button onclick=createUsername()>Submit</button>
+                                                        <div id="response"></div>
+
+                                                        <style>
+                                                        input{
+                                                            padding: 0.75rem;
+                                                            border-radius: 1rem;
+                                                            margin-bottom: 0.75rem;
+                                                            font-size: 1rem;
+                                                            width: 15rem;
+                                                          }
+                                                        </style>
+                                                        `;
+}
+
+async function createUsername(){
+    let username = document.getElementById("username-input").value;
+    let id = document.getElementById("id-input").value;
+
+    if(!(/^[a-zA-Z0-9_]+$/).test(username)){
+        document.getElementById("response").innerHTML = "<p>Username can only use alphanumerical characters and underscore.</p>";
+        return;
     }
-
-    if(username == null) location.reload()  // You can bypass the prompts by pressing escape, this prevents users from not choosing a username, as nothing works without it
 
     let inUse = true;
     await checkForUsed(username).then(
@@ -20,28 +51,33 @@ async function checkUsername() {
     );
 
     if(inUse){
-        let id = prompt("This username is already in use. If this is you on another device, please fill in its id token that can be found on the bottom of the page. If this is not you, leave the input blank.");
-        
         let match = false;
         await checkID(username, id).then(
             function(response){match = (response == "match");},
             function(Error){console.log(Error); return;}
         );
         if(!match){
-            location.reload();      // Resets questions
+            document.getElementById("response").innerHTML = "<p>Username and id don't match. Please try again.</p>";
             return;
         }
 
         setCookie("username", username, 365);
         setCookie("idToken", id, 365);
+        location.reload();
+        return;
+    }
+
+    if(id != ""){
+        document.getElementById("response").innerHTML = "<p>Username is new, but an id was supplied. Please check for spelling mistakes or delete the id.</p>";
         return;
     }
     
-    let id = window.crypto.randomUUID().slice(-12)
+    id = window.crypto.randomUUID().slice(-12);
     setCookie("idToken", id, 365);       // Only use 12 characters as it needs to be typeable
     setCookie("username", username, 365);
     
     insertIntoDB(id, username);
+    location.reload();
 }
 
 // Given a username, returns true if the username is already in use

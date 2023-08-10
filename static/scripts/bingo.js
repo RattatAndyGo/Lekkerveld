@@ -12,9 +12,6 @@ class Square{
 }
 
 window.onload = function(){
-    // If there is no username, prompt to create one
-    checkUsername();
-
     // Add onchange events to inputs
     let changerDiv = document.getElementById("mass-changer");
     changerDiv.querySelectorAll("select").forEach((e) => {

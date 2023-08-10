@@ -28,5 +28,5 @@ function getCookie(cname) {
 
 // Resets a cookie to the same value but with an updated expiry time
 function refreshCookie(cname){
-    setCookie(cname, getCookie(cname), 365);
+    setCookie(cname, getCookie(cname), 365*3);
 }
