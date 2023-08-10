@@ -1,8 +1,10 @@
 import mysql.connector
 import pandas as pd
+import sys
+import getopt
 
-def connect_to_db(username="rattatandygo", password=input("Please enter mysql password for rattatandygo: "), hostname="localhost", database="lekkerveld", port=3306):
-    return mysql.connector.connect(user=username, password=password, host=hostname, database=database, port=port)
+def connect_to_db(username="rattatandygo", password="wrong", host="localhost", database="lekkerveld", port=3306):
+    return mysql.connector.connect(user=username, password=password, host=host, database=database, port=port)
 
 # Runs an sql query
 # query is the query to run
@@ -30,4 +32,25 @@ def get_value(query, params):
     df = run_query(query, params)
     return df.at[0, "result"]
 
-c = connect_to_db()
+
+
+# Parse the provided arguments to connect to the database
+argumentList = sys.argv[1:]
+options = "u:p:h:d:"
+long_options = ["username=", "password=", "host=", "database="]
+
+arguments, values = getopt.getopt(argumentList, options, long_options)
+params = {}
+
+for currentArgument, currentValue in arguments:
+    match(currentArgument):
+        case "-u" | "--username":
+            params["username"] = currentValue
+        case "-p" | "--password":
+            params["password"] = currentValue
+        case "-h" | "--host":
+            params["host"] = currentValue
+        case "-d" | "--database":
+            params["database"] = currentValue
+
+c = connect_to_db(**params)
