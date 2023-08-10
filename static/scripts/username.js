@@ -61,8 +61,8 @@ async function createUsername(){
             return;
         }
 
-        setCookie("username", username, 365);
-        setCookie("idToken", id, 365);
+        setCookie("username", username, 365*3);
+        setCookie("idToken", id, 365*3);
         location.reload();
         return;
     }
@@ -73,8 +73,8 @@ async function createUsername(){
     }
     
     id = window.crypto.randomUUID().slice(-12);
-    setCookie("idToken", id, 365);       // Only use 12 characters as it needs to be typeable
-    setCookie("username", username, 365);
+    setCookie("idToken", id, 365*3);       // Only use 12 characters as it needs to be typeable
+    setCookie("username", username, 365*3);
     
     insertIntoDB(id, username);
     location.reload();
