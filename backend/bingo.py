@@ -123,7 +123,7 @@ def getDexNo(pokemon):
     return int(''.join(filter(str.isdigit, str(pokemon[0]))))
 
 
-# Given a card (uploaded and served via JS), return an array of array containing all info of the pokemon (dexNo, game, isShiny, isCompleted)
+# Given a card (uploaded and served via JS), return an array of arrays containing all info of the pokemon (dexNo, game, isShiny, isCompleted)
 def cardToinput(path):
     pokemon_width = 256     # Height is identical to width
     pokemonList = getPokemonImagesFromCard(path, pokemon_width)
@@ -184,11 +184,7 @@ def getPokemonImagesFromCard(path, pokemon_width):
 
 # Given an image of one pokemon (cropped from a bingo card) and a pokemon to compare to, returns whether or not they match
 def checkMatch(pokemon, comparison):
-    # Check central pixel first, this gives a big chance of failing
-    if (not (pokemon.getpixel((140, 140)) == comparison.getpixel((140, 140)) or pokemon.getpixel((140, 140)) == (255, 255, 255))):
-        return False
-
-    # Now check grid of equally spaced pixels for a more thorough check
+    # Check grid of equally spaced pixels
     start_x = 90
     start_y = 90
     end_x = 210
@@ -218,11 +214,3 @@ def pathToPokemon(path):
         isShiny = "normal"
 
     return [pokemon, game, isShiny, "incompleted"]
-
-
-def saveBoard(id):
-    pass
-
-
-def loadBoard(id):
-    pass

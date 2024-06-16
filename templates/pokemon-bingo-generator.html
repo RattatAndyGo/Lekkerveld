@@ -52,33 +52,26 @@
                     <li>Which Pokemon (or free slot) should be used?</li>
                     <li>From which game should the sprite come from?</li>
                     <li>Is the Pokemon shiny or not?</li>
-                    <li>Is the Pokemon completed or not?</li>
+                    <li>Is the slot checked off or not?</li>
                 </ul>
             <p>
                 If a random game has no sprite for the chosen Pokemon, the game is rerolled. Similarly, if a random Pokemon has no sprite in a chosen game, the Pokemon will be rerolled. If an incompatible Pokemon/game pair is inputted, the game is randomized.<br>
-                The randomizer checks for duplicate Pokemon*, but other forms are seen as other Pokemon. Shiny/non-shiny is considered the same Pokemon. Additionally, the randomizer will always choose the base form (the first one).<br>
-                To download the generated bingo card, use "right-click > save image as...". <br>
+                The randomizer checks for duplicate Pokemon*, but other forms are seen as other Pokemon. Shiny/non-shiny is considered the same Pokemon. Additionally, the randomizer will always choose the base form of the Pokemon.<br>
                 <br>
                 * The dupe check checks only up until that square, so if a later square has a chosen pokemon, it might be the same Pokemon anyway.<br>
                 <br>
                 You can use the "Save inputs" button to store the current options you have selected. At a later time, you can use the "Load inputs" option to immediately load those same options back in. This way you can make adjustments later, like adding a "completed" stamp to a Pokemon.<br>
-                The board is stored as a cookie in local storage, so make sure you have enabled cookies. If you delete your cookies, you will also delete your saved board. Additionally, the cookie expires after 365 days, but this can easily be reset by first loading and then saving the board, as this resets the cookie.<br>
-                The "Save board" button saves the bingo card, so randomized Pokemon are saved rather than a "random" input. These are stored on server.
+                The "Save board" button saves the current bingo card, so randomized Pokemon are saved rather than a "random" input. Alternatively, you can upload a bingo card below to change the settings to reflect that card.
             </p>
 
             <hr>
 
             <p>Upload a bingo card you previously generated to change the settings above to reflect this card.<br>
                 If there is a "completed" stamp on a pokemon, it will not be detected, and a free space will be used.<br>
-                This can take a bit over half a minute to process.
 
                 <input type="file" id="card-to-input" name="card" accept=".png">
                 <button onclick="cardToInput()" class="reverse-engineer-button">Reverse engineer card</button>
             </p>
-
-            <hr>
-
-            {% include 'includes/id.html' %}
 
             <hr>
 
