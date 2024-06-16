@@ -1,2 +1,3 @@
-backend/__pycache__/*
 static/assets/images/bingo/bingo-cards/*
+backend/__pycache__
+static/assets/images/temporary-storage

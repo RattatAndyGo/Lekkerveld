@@ -46,6 +46,7 @@ span{
     height: 100%;
     align-items: center;
 }
+
 nav{
     display: flex;
     flex-direction: row;
