@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     {% include 'includes/head.html' %}
-    <!-- <script type="text/javascript" src="static/scripts/username.js"></script> -->
-    <script type="text/javascript" src="static/scripts/bingo.js"></script>
+    <script type="text/javascript" src="static/scripts/bingo.js" async></script>
     <link rel="stylesheet" href="static/stylesheets/bingo.css"/>
 
     <title>Pokemon bingo generator | Lekkerveld</title>
@@ -66,8 +65,8 @@
 
             <hr>
 
-            <p>Upload a bingo card you previously generated to change the settings above to reflect this card.<br>
-                If there is a "completed" stamp on a pokemon, it will not be detected, and a free space will be used.<br>
+            <p>Upload a bingo card you previously generated to change the settings above to reflect this card. This only works if the card was downloaded, not with screenshots.<br>
+                If there is a "completed" stamp on a pokemon, it might not be detected, and a free space will be used.<br>
 
                 <input type="file" id="card-to-input" name="card" accept=".png">
                 <button onclick="cardToInput()" class="reverse-engineer-button">Reverse engineer card</button>

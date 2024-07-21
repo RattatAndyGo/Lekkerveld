@@ -4,6 +4,7 @@ import pathlib
 from random import randint
 
 from PIL import Image
+from PIL.PngImagePlugin import PngInfo
 
 
 def merge(im1, im2):
@@ -49,11 +50,16 @@ def generateBingoCard(pokemonList, width=5):
         if (cursor[0] == horizontal_offset):
             cursor[1] += vertical_length
 
-    # SAVE im IN FOLDER, RETURN PATH TO IMAGE
+    # Add metadata
+    metadata = PngInfo()
+    metadata.add_text("test", "value")
+    metadata.add_text("pokemonList", str(pokemonList))
+
+    # Save im in folder, return path to image
     name = datetime.datetime.now().strftime("%m%d%H%M%S%f")         # Name is derived from current time, month-day-hour-minute-second-millisecond
     path = pathlib.Path("static/assets/images/bingo/bingo-cards/{}.png".format(name))
     path.touch(exist_ok=True)
-    im.save(path, "PNG")
+    im.save(path, "PNG", pnginfo=metadata)
 
     return str(path)
 
@@ -95,7 +101,7 @@ def formatBingoCard(id, pokemonList, width=5, height=5):
     return generateBingoCard(pokemonList)
 
 
-# Returns index of first Pokemon pokemon, or -1 if it is not present
+# Returns index of first occurrence of pokemon, or -1 if it is not present
 def getFirstOccurrence(pokemonList, pokemon):
     for idx in range(len(pokemonList)):
         if (pokemon == pokemonList[idx][0]):
@@ -124,9 +130,17 @@ def getDexNo(pokemon):
 
 
 # Given a card (uploaded and served via JS), return an array of arrays containing all info of the pokemon (dexNo, game, isShiny, isCompleted)
-def cardToinput(path):
+def cardToinput(im):
+    card = Image.open(im).copy()
+
+    # Check if metadata is present
+    res = card.info.get("pokemonList")
+    if (res != None):
+        return eval(res)
+
+    # Metadata is not present, use image pixels to determine pokemon
     pokemon_width = 256     # Height is identical to width
-    pokemonList = getPokemonImagesFromCard(path, pokemon_width)
+    pokemonList = getPokemonImagesFromCard(card, pokemon_width)
     res = [["free", "random", "normal", "incompleted"]] * len(pokemonList)       # Fill res with filler values to allow random access to elements
 
     d = "static/assets/images/bingo"        # Parent directory
@@ -159,7 +173,7 @@ def cardToinput(path):
     return res
 
 
-def getPokemonImagesFromCard(path, pokemon_width):
+def getPokemonImagesFromCard(card, pokemon_width):
     # Offset to first square, and length of a square
     horizontal_offset = 52
     vertical_offset = 369
@@ -167,7 +181,6 @@ def getPokemonImagesFromCard(path, pokemon_width):
     vertical_length = 308
 
     cursor = [horizontal_offset, vertical_offset]
-    card = Image.open(path).copy()
 
     res = []
     for i in range(25):

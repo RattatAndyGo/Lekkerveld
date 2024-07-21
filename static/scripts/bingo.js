@@ -61,6 +61,7 @@ function generateBingoCard(pokemonList){
 
             const img = new Image(); 
             img.src = path;
+            img.id = "bingo-card-image"
             document.getElementById("bingo-div").replaceChildren(img);
         }else{
             console.log("error: ", xmlHttp);
@@ -135,60 +136,57 @@ function jsonToBoard(array){
     arrayToBoard(array);
 }
 
-// Stores current state of the board, to later restore using loadBoard() (board is deleted after 1 year)
+// Stores current state of the inputs, to later restore using loadInputs() (inputs are deleted after 1 year)
 function saveInputs(){
-    setCookie("board", boardToString(), 365);
+    setCookie("inputs", boardToString(), 365);
 }
 
-// Loads the board in the state it was when last saved
+// Loads the inputs in the state it was when last saved
 function loadInputs(){
-    let board = getCookie("board");
-    if(board == ""){
-        console.log("No board is stored. Please store a board first. If you believe you have stored a board in the past, either you removed your cookies or the cookie expired (the cookie is deleted after 365 days)");
+    let inputs = getCookie("inputs");
+    if(inputs == ""){
+        console.log("No inputs are stored. Please store inputs first. If you believe you have stored inputs in the past, either you removed your cookies or the cookie expired (the cookie is deleted after 365 days)");
         return;
     }
 
-    board = JSON.parse(board);
-    board.push(["random", "random", "normal", "incompleted"]);      // Mass changer button
-    arrayToBoard(board);
+    inputs = JSON.parse(inputs);
+    inputs.push(["random", "random", "normal", "incompleted"]);      // Mass changer button
+    arrayToBoard(inputs);
 }
 
-function saveBoard(){
-    // Create Post Request
+// Stores current state of the board, to later restore using loadBoard() (board is deleted after 1 year)
+function saveBoard(){// Create Post Request
     let xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("POST", "/bingo-save-board");
+    xmlHttp.open("POST", "/bingo-card-to-input");
 
     xmlHttp.onload = function() {
         if(xmlHttp.status == 200){
-            console.log("success!");
+            setCookie("board", xmlHttp.responseText, 365);
         }else{
             console.log("error: ", xmlHttp);
         }
     }
 
     // Initialize Formdata
-    let fd = new FormData();
-    fd.append("id", JSON.stringify(getCookie("idToken")));
-    
-    xmlHttp.send(fd);
+    try{
+        let card = document.getElementById("bingo-card-image").getAttribute("src");
+        let fd = new FormData();
+        fd.append("card", card);
+        xmlHttp.send(fd);
+    } catch {
+        return;
+    }
 }
 
+// Loads the board in the state it was when last saved
 function loadBoard(){
-    // Create Post Request
-    let xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("POST", "/bingo-load-board");
-
-    xmlHttp.onload = function() {
-        if(xmlHttp.status == 200){
-            jsonToBoard(xmlHttp.responseText);
-        }else{
-            console.log("error: ", xmlHttp.responseText);
-        }
+    let inputs = getCookie("board");
+    if(inputs == ""){
+        console.log("No board is stored. Please store a board first. If you believe you have stored a board in the past, either you removed your cookies or the cookie expired (the cookie is deleted after 365 days)");
+        return;
     }
 
-    // Initialize Formdata
-    let fd = new FormData();
-    fd.append("id", JSON.stringify(getCookie("idToken")));
-    
-    xmlHttp.send(fd);
+    inputs = JSON.parse(inputs);
+    inputs.push(["random", "random", "normal", "incompleted"]);      // Mass changer button
+    arrayToBoard(inputs);
 }

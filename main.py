@@ -25,18 +25,11 @@ def bingoGenerate():
 
 @app.route('/bingo-card-to-input', methods=['POST'])
 def bingoCardToInput():
-    return bingo.cardToinput(request.files["card"])
-
-
-@app.route('/bingo-save-board', methods=['POST'])
-def bingoSaveBoard():
-    bingo.saveBoard(json.loads(request.form.get('id')))
-    return "OK", 200
-
-
-@app.route('/bingo-load-board', methods=['POST'])
-def bingoLoadBoard():
-    return bingo.loadBoard(json.loads(request.form.get('id')))
+    # Card can either be the file itself or the path of the file
+    try:
+        return bingo.cardToinput(request.files["card"])
+    except Exception as e:
+        return bingo.cardToinput(request.form.get("card"))
 
 
 @app.route('/username-check-for-used', methods=['POST'])
